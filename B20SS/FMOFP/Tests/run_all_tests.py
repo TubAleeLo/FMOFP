@@ -46,6 +46,7 @@ SUITES = [
     (True,  "FMOFP.Tests.test_scenario_failure_injection", 300),
     (True,  "FMOFP.Tests.test_db_connection_pool", 300),
     (True,  "FMOFP.Tests.test_thread_and_cli_resilience", 300),
+    (True,  "FMOFP.Tests.test_radar_shutdown_health", 300),
 ]
 
 

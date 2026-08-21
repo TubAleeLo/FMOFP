@@ -250,7 +250,28 @@ class RadarManagementSystem:
                         logger.error(f"Error updating radar {radar.name}: {e}")
                         logger.error(traceback.format_exc())
 
-                # Check system health
+                # Check system health.
+                #
+                # `running` is re-checked FIRST and handled separately from
+                # the health verdict. is_healthy() returns
+                # `self.running and radar_health`, so once a shutdown clears
+                # the _running event this call returns False for a perfectly
+                # healthy system — and the branch below reported that as
+                # "detected unhealthy system" at ERROR. Because a shutdown
+                # can flip the flag while an iteration is already in flight,
+                # this fired on essentially every clean run: live-traced at
+                # ~107 ms after the NORMAL -> SHUTTING_DOWN transition, and
+                # it was the only ERROR left in an otherwise clean boot log.
+                # A normal stop is not a fault, so it exits quietly here and
+                # the ERROR is reserved for a radar that is genuinely
+                # unhealthy while the system is still meant to be running.
+                if not self.running:
+                    logger.info(
+                        f"RadarMain thread (ID: {thread_id}) stopping: "
+                        f"system is shutting down"
+                    )
+                    break
+
                 if not self.is_healthy():
                     logger.error(f"RadarMain thread (ID: {thread_id}) detected unhealthy system")
                     self._running.clear()  # Thread-safe way to stop
