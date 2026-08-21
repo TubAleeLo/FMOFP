@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  MIL-STD-1553B bus adapter selection (see MIL_STD_1553B/bus_adapter.py).
+
+  One <adapter> element per bus role:
+    role      "bc" (Bus Controller) or "rt" (Remote Terminal)
+    type      "socket"   - default; local TCP simulation transport
+                           (BC transmits to RT_Listener on localhost:5001,
+                            RT transmits to BC_Listener on localhost:5000)
+              "loopback" - in-process test transport, no sockets
+              "hardware" - real MIL-STD-1553B interface card; requires a
+                           vendor driver registered at runtime via
+                           bus_adapter.register_hardware_driver() BEFORE the
+                           first message is sent. See HardwareBusAdapter's
+                           docstring for the driver contract.
+    peer_host / peer_port   optional socket-type overrides of the defaults
+                            above (simulation-only; both listeners bind
+                            loopback by design - see BC_socket.setup_socket).
+
+  Deleting this file entirely is safe: both roles then default to "socket"
+  with the historical host/port values.
+-->
+<busAdapters>
+    <adapter role="bc" type="socket"/>
+    <adapter role="rt" type="socket"/>
+</busAdapters>

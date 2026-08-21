@@ -34,21 +34,23 @@ logger = get_logger()
 def _import_test_module(module_name: str):
     """Import a debug-CLI test module, failing with a clear message.
 
-    15 of the 25 `test` menu entries referenced FMOFP.Tests.* modules that
-    do not exist in the repo (tracked in PLANNING.md, Next Steps item 12a
-    since the August 2026 re-analysis). Selecting one used to surface as a
-    raw ModuleNotFoundError traceback re-raised through the handler's
-    generic `except Exception`. This helper turns that into a single,
-    honest line so the interactive menu degrades gracefully; entries whose
-    modules exist are unaffected.
+    History (PLANNING.md Next Steps item 12a, now closed): the `test` menu
+    once carried 25 entries, 15+ of which referenced FMOFP.Tests.* modules
+    that do not exist in the repo — selecting one surfaced as a raw
+    ModuleNotFoundError traceback. The menu was first cut down to the 9
+    entries whose modules exist, and in the August 2026 completion pass the
+    ~16 dead handler methods themselves were deleted, so every module this
+    helper is asked for now exists in Tests/. The helper is kept as
+    defense-in-depth: if a Tests module is ever renamed or removed without
+    updating the menu, the user gets one honest line instead of a traceback.
     """
     try:
         return importlib.import_module(module_name)
     except ModuleNotFoundError as e:
         raise RuntimeError(
             f"Test module '{module_name}' is not present in this build "
-            "(menu entry predates the current test suite — see PLANNING.md "
-            "Next Steps 12a)"
+            "(menu entry out of step with Tests/ — update the test menu in "
+            "userCLI.py)"
         ) from e
 
 
@@ -376,53 +378,6 @@ class UserCLI:
             # Ensure command is marked as processed
             self.command_processed.set()
 
-    # In the _process_command function within userCLI.py
-    async def weather_radar_display_visual_test(self):
-        """Run the weather radar display test"""
-        try:
-            # Import test module dynamically to avoid circular imports
-            test_module = _import_test_module('FMOFP.Tests.weather_radar_display_visual_test')
-            test_class = getattr(test_module, 'TestWeatherRadarDisplayVisual')
-
-            # Setup test environment
-            logger.info("Setting up test environment")
-            test_suite = test_class()
-
-            # Run the full test sequence
-            logger.info("\nStarting Weather Radar Display Test...")
-            await test_suite.run_tests()
-
-            # Process test results
-            logger.info("\nTest completed successfully!")
-
-        except Exception as e:
-            logger.error(f"Test suite error: {str(e)}", exc_info=True)
-            # Re-raise to ensure failure is caught by caller
-            raise
-
-    async def vil_display_flow_test(self):
-        """Run the VIL display flow test"""
-        try:
-            # Import test module dynamically to avoid circular imports
-            test_module = _import_test_module('FMOFP.Tests.vil_display_flow_test')
-            test_class = getattr(test_module, 'TestVILDisplayFlow')
-
-            # Setup test environment
-            logger.info("Setting up test environment")
-            test_suite = test_class()
-
-            # Run the full test sequence
-            logger.info("\nStarting VIL Display Flow Test...")
-            await test_suite.run_tests()
-
-            # Process test results
-            logger.info("\nTest completed successfully!")
-
-        except Exception as e:
-            logger.error(f"Test suite error: {str(e)}", exc_info=True)
-            # Re-raise to ensure failure is caught by caller
-            raise
-
     async def combined_precipitation_vil_flow_test(self):
         """Run the combined precipitation and VIL display flow test"""
         try:
@@ -450,148 +405,6 @@ class UserCLI:
             else:
                 logger.error("\nCombined Precipitation and VIL Display Flow Test failed!")
                 raise RuntimeError("Combined Precipitation and VIL Display Flow Test failed")
-
-        except Exception as e:
-            logger.error(f"Test suite error: {str(e)}", exc_info=True)
-            # Re-raise to ensure failure is caught by caller
-            raise
-
-    async def precipitation_display_flow_test(self):
-        """Run the precipitation display flow test"""
-        try:
-            # Import test module dynamically to avoid circular imports
-            test_module = _import_test_module('FMOFP.Tests.precipitation_display_flow_test')
-            test_class = getattr(test_module, 'TestPrecipitationDisplayFlow')
-
-            # Setup test environment
-            logger.info("Setting up test environment")
-            test_suite = test_class()
-
-            # Run the full test sequence
-            logger.info("\nStarting Precipitation Display Flow Test...")
-            await test_suite.run_tests()
-
-            # Process test results
-            logger.info("\nTest completed successfully!")
-
-        except Exception as e:
-            logger.error(f"Test suite error: {str(e)}", exc_info=True)
-            # Re-raise to ensure failure is caught by caller
-            raise
-
-    async def echo_top_display_flow_test(self):
-        """Run the Echo Top display flow test"""
-        try:
-            # Import test module dynamically to avoid circular imports
-            test_module = _import_test_module('FMOFP.Tests.echo_top_display_flow_test')
-            test_class = getattr(test_module, 'TestEchoTopDisplayFlow')
-
-            # Setup test environment
-            logger.info("Setting up test environment")
-            test_suite = test_class()
-
-            # Run the full test sequence
-            logger.info("\nStarting Echo Top Display Flow Test...")
-            await test_suite.run_tests()
-
-            # Process test results
-            logger.info("\nTest completed successfully!")
-
-        except Exception as e:
-            logger.error(f"Test suite error: {str(e)}", exc_info=True)
-            # Re-raise to ensure failure is caught by caller
-            raise
-
-
-    # In the _process_command function within userCLI.py
-    async def weather_radar_display_test(self):
-        """Run the weather radar display test"""
-        try:
-            # Import test module dynamically to avoid circular imports
-            test_module = _import_test_module('FMOFP.Tests.weather_radar_display_test')
-            test_class = getattr(test_module, 'TestWeatherRadarDisplay')
-
-            # Setup test environment
-            logger.info("Setting up test environment")
-            test_suite = test_class()
-
-            # Run the full test sequence
-            logger.info("\nStarting Weather Radar Display Test...")
-            await test_suite.run_tests()
-
-            # Process test results
-            logger.info("\nTest completed successfully!")
-
-        except Exception as e:
-            logger.error(f"Test suite error: {str(e)}", exc_info=True)
-            # Re-raise to ensure failure is caught by caller
-            raise
-
-    async def weather_radar_end_to_end_test(self):
-        """Run the weather radar end-to-end test"""
-        try:
-            # Import test module dynamically to avoid circular imports
-            test_module = _import_test_module('FMOFP.Tests.weather_radar_end_to_end_test')
-            test_class = getattr(test_module, 'TestWeatherRadarEndToEnd')
-
-            # Setup test environment
-            logger.info("Setting up test environment")
-            test_suite = test_class()
-
-            # Run the full test sequence
-            logger.info("\nStarting Weather Radar End-to-End Test...")
-            await test_suite.run_tests()
-
-            # Process test results
-            logger.info("\nTest completed successfully!")
-
-        except Exception as e:
-            logger.error(f"Test suite error: {str(e)}", exc_info=True)
-            # Re-raise to ensure failure is caught by caller
-            raise
-
-    #   precipitation_system_test
-    async def precipitation_system_test(self):
-        """Run the precipitation system test"""
-        try:
-            # Import test module dynamically to avoid circular imports
-            test_module = _import_test_module('FMOFP.Tests.precipitation_system_test')
-            test_class = getattr(test_module, 'TestPrecipitationSystem')
-
-            # Setup test environment
-            logger.info("Setting up test environment")
-            test_suite = test_class()
-
-            # Run the full test sequence
-            logger.info("\nStarting  Test.")
-            await test_suite.run_tests()
-
-            # Process test results
-            logger.info("\nTest completed successfully!")
-
-        except Exception as e:
-            logger.error(f"Test suite error: {str(e)}", exc_info=True)
-            # Re-raise to ensure failure is caught by caller
-            raise
-
-    # The userCLI function
-    async def vil_system_test(self):
-        """Run the VIL system test"""
-        try:
-            # Import test module dynamically to avoid circular imports
-            test_module = _import_test_module('FMOFP.Tests.vil_system_test')
-            test_class = getattr(test_module, 'TestVILSystem')
-
-            # Setup test environment
-            logger.info("Setting up test environment")
-            test_suite = test_class()
-
-            # Run the full test sequence
-            logger.info("\nStarting VIL System Test...")
-            await test_suite.run_tests()
-
-            # Process test results
-            logger.info("\nTest completed successfully!")
 
         except Exception as e:
             logger.error(f"Test suite error: {str(e)}", exc_info=True)
@@ -665,98 +478,6 @@ class UserCLI:
             raise
 
     #   test_targeting_radar_mode_change
-    async def test_sar_radar_mode_change(self):
-        """Run the SAR radar mode change test"""
-        try:
-            # Import test module dynamically to avoid circular imports
-            test_module = _import_test_module('FMOFP.Tests.sar_radar_mode_change_system_test')
-            test_class = getattr(test_module, 'TestSARRadarModeChangeSystem')
-
-            # Setup test environment
-            logger.info("Setting up test environment")
-            test_suite = test_class()
-
-            # Run the full test sequence
-            logger.info("\nStarting SAR Radar Mode Change Test...")
-            await test_suite.test_sar_radar_mode_changes()
-
-            # Process test results
-            logger.info("\nTest completed successfully!")
-
-        except Exception as e:
-            logger.error(f"Test suite error: {str(e)}", exc_info=True)
-            # Re-raise to ensure failure is caught by caller
-            raise
-
-    async def targeting_radar_mode_change(self):
-        """Run the targeting radar mode change test"""
-        try:
-            # Import test module dynamically to avoid circular imports
-            test_module = _import_test_module('FMOFP.Tests.targeting_radar_mode_change_system_test')
-            test_class = getattr(test_module, 'TestTargetingRadarModeChangeSystem')
-
-            # Setup test environment
-            logger.info("Setting up test environment")
-            test_suite = test_class()
-
-            # Run the full test sequence
-            logger.info("\nStarting Targeting Radar Mode Change Test...")
-            await test_suite.test_targeting_radar_mode_changes()
-
-            # Process test results
-            logger.info("\nTest completed successfully!")
-
-        except Exception as e:
-            logger.error(f"Test suite error: {str(e)}", exc_info=True)
-            # Re-raise to ensure failure is caught by caller
-            raise
-
-    async def aewc_radar_mode_change(self):
-        """Run the AEWC radar mode change test"""
-        try:
-            # Import test module dynamically to avoid circular imports
-            test_module = _import_test_module('FMOFP.Tests.aewc_radar_mode_change_system_test')
-            test_class = getattr(test_module, 'TestAEWCRadarModeChangeSystem')
-
-            # Setup test environment
-            logger.info("Setting up test environment")
-            test_suite = test_class()
-
-            # Run the full test sequence
-            logger.info("\nStarting AEWC Radar Mode Change Test...")
-            await test_suite.test_aewc_radar_mode_changes()
-
-            # Process test results
-            logger.info("\nTest completed successfully!")
-
-        except Exception as e:
-            logger.error(f"Test suite error: {str(e)}", exc_info=True)
-            # Re-raise to ensure failure is caught by caller
-            raise
-
-    async def tfr_radar_mode_change(self):
-        """Run the TFR radar mode change test"""
-        try:
-            # Import test module dynamically to avoid circular imports
-            test_module = _import_test_module('FMOFP.Tests.tfr_radar_mode_change_system_test')
-            test_class = getattr(test_module, 'TestTFRRadarModeChangeSystem')
-
-            # Setup test environment
-            logger.info("Setting up test environment")
-            test_suite = test_class()
-
-            # Run the full test sequence
-            logger.info("\nStarting TFR Radar Mode Change Test...")
-            await test_suite.test_tfr_radar_mode_changes()
-
-            # Process test results
-            logger.info("\nTest completed successfully!")
-
-        except Exception as e:
-            logger.error(f"Test suite error: {str(e)}", exc_info=True)
-            # Re-raise to ensure failure is caught by caller
-            raise
-
     async def predefined_messages_test(self):
         """Run the Comprehensive Predefined Messages Test"""
         try:
@@ -917,93 +638,6 @@ class UserCLI:
             else:
                 logger.error("\nAEWC Radar Test failed!")
                 raise RuntimeError("AEWC Radar Test failed")
-
-        except Exception as e:
-            logger.error(f"Test suite error: {str(e)}", exc_info=True)
-            # Re-raise to ensure failure is caught by caller
-            raise
-
-    async def weather_radar_node_test(self):
-        """Run the weather radar node test"""
-        try:
-            # Import test module dynamically to avoid circular imports
-            test_module = _import_test_module('FMOFP.Tests.weather_radar_node_test')
-            test_class = getattr(test_module, 'TestWeatherRadarMessageFlow')
-
-            # Setup test environment
-            logger.info("Setting up test environment")
-            test_suite = test_class()
-
-            # Run the full test sequence
-            logger.info("\nStarting Weather Radar Node Test...")
-            await test_suite.run_tests()
-
-            # Process test results
-            logger.info("\nTest completed successfully!")
-
-        except Exception as e:
-            logger.error(f"Test suite error: {str(e)}", exc_info=True)
-            # Re-raise to ensure failure is caught by caller
-            raise
-
-    async def weather_radar_visual_test(self):
-        """Run the weather radar visual test"""
-        try:
-            # Import test module dynamically to avoid circular imports
-            test_module = _import_test_module('FMOFP.Tests.weather_radar_visual_test')
-            test_class = getattr(test_module, 'TestWeatherRadarVisual')
-
-            # Setup test environment
-            logger.info("Setting up test environment")
-            test_suite = test_class()
-
-            # Run the full test sequence
-            logger.info("\nStarting Weather Radar Visual Test...")
-            await test_suite.run_tests()
-
-            # Process test results
-            logger.info("\nTest completed successfully!")
-
-        except Exception as e:
-            logger.error(f"Test suite error: {str(e)}", exc_info=True)
-            # Re-raise to ensure failure is caught by caller
-            raise
-
-    async def test_display_individual_mode(self):
-        """Run the individual display mode test"""
-        try:
-            # Import test module dynamically to avoid circular imports
-            test_module = _import_test_module('FMOFP.Tests.display_individual_mode_test')
-            test_class = getattr(test_module, 'TestDisplayIndividualMode')
-
-            # Setup test environment
-            logger.info("Setting up test environment")
-            test_suite = test_class()
-
-            # Run the full test sequence
-            logger.info("\nStarting Individual Display Mode Test...")
-            await test_suite.test_display_system()  # Test each display type with each mode individually
-
-            # Process test results
-            logger.info("\nIndividual Display Mode Test completed successfully!")
-
-        except Exception as e:
-            logger.error(f"Test suite error: {str(e)}", exc_info=True)
-            # Re-raise to ensure failure is caught by caller
-            raise
-
-    async def TestWeatherRadarModeChange(self):
-        """Run system-level weather radar mode change test"""
-        try:
-            # Run the system-level test
-            logger.info("\nStarting System-Level Weather Radar Mode Change Test...")
-            system_test_module = _import_test_module('FMOFP.Tests.weather_radar_mode_change_system_test')
-            system_test_class = getattr(system_test_module, 'TestWeatherRadarModeChangeSystem')
-            system_test_suite = system_test_class()
-            await system_test_suite.test_weather_radar_mode_changes()
-
-            # Process test results
-            logger.info("\nAll Weather Radar Mode Change Tests completed successfully!")
 
         except Exception as e:
             logger.error(f"Test suite error: {str(e)}", exc_info=True)

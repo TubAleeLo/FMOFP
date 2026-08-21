@@ -13,6 +13,7 @@ import time
 import select
 import FMOFP.Utils.common.fetching as fetching
 from FMOFP.Utils.logger.sys_logger import get_logger
+from FMOFP.MIL_STD_1553B.bus_adapter import get_bus_adapter
 
 logger = get_logger()
 
@@ -20,6 +21,14 @@ class BC_sender:
     def __init__(self, max_workers=5):
         self.destination_ip = "localhost"
         self.destination_port = 5001
+        # Transport is now behind the bus adapter layer (bus_adapter.py) so a
+        # real 1553B hardware interface can be swapped in via
+        # busAdapterConfig.xml without touching this class. The default
+        # SocketBusAdapter reproduces the previous inline socket code exactly
+        # (destination_ip/destination_port above are kept for backwards
+        # compatibility of anything that reads them; the adapter owns the
+        # live values).
+        self._bus_adapter = get_bus_adapter('bc')
         self.executor = ThreadPoolExecutor(max_workers=max_workers)
         self.is_shutting_down = False
         self.shutdown_event = threading.Event()
@@ -109,20 +118,13 @@ class BC_sender:
             
         logger.info(f"BC_sender encoded message: {msg}")
         
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as socket_variable:
-                logger.info(f"BC_sender connecting to {self.destination_ip}:{self.destination_port}")
-                socket_variable.connect((self.destination_ip, self.destination_port))
-                logger.info("BC_sender connection established")
-                socket_variable.sendall(msg)
-                logger.info(f"Message sent successfully: {message}")
-                return True
-        except ConnectionRefusedError:
-            logger.error(f"Connection refused to {self.destination_ip}:{self.destination_port}")
-            return False
-        except Exception as e:
-            logger.error(f"Error sending message: {str(e)}")
-            return False
+        # Delegate the actual wire transfer to the configured bus adapter
+        # (socket by default — identical connect/sendall/close semantics and
+        # error handling to the inline code this replaced).
+        if self._bus_adapter.transmit(msg):
+            logger.info(f"Message sent successfully: {message}")
+            return True
+        return False
 
     def _send_large_message(self, message):
         """

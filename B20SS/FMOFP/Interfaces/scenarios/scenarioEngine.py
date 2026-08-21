@@ -261,23 +261,61 @@ class ScenarioEngine:
             logger.debug(f"[SCENARIO] phase_change inject error: {e}")
 
     def _inject_failure(self, p: Dict):
-        # Intentionally log-only. Investigated wiring this into
-        # Systems/avionics/hardwareHealth/LRUstatus.py's LRUStatusMonitor
-        # (the closest thing to a "system health" registry in this
-        # codebase) during the August 2026 audit: its LRU.health field is
-        # unconditionally recomputed from each subsystem's own live
-        # get_status() on every poll cycle (_poll_lru(), running
-        # continuously at POLL_HZ) — there is no override hook, so
-        # directly setting .health here would just get silently
-        # overwritten on the next poll tick, at most a fraction of a
-        # second later. Building a real "forced fault" override that
-        # _poll_lru() respects is a legitimate follow-up feature, but is
-        # new functionality (not a broken call to fix) and was judged
-        # out of scope for that pass. Until then, "system_failure"
-        # scenario events are instructor-visible log messages only and
-        # do not affect any live system state.
+        """Force a fault into the LRU health registry (functional since the
+        August 2026 completion pass — previously log-only).
+
+        The earlier audit correctly noted that LRUStatusMonitor recomputed
+        LRU.health from live get_status() on every poll tick with no
+        override hook, so any state set here was overwritten within a
+        fraction of a second. That hook now exists: force_fault() records a
+        persistent override that _poll_lru() honors until cleared, so a
+        scenario-injected failure stays visible in get_all()/get_faults()/
+        overall_health() for the rest of the scenario (or until an explicit
+        clear event).
+
+        Event params:
+          system       LRU id ("FCC-1"), system key ("flight_control_computer"),
+                       unique name substring, or any free-form system name
+                       (non-catalogued names become scenario-declared entries)
+          state        FAULT (default) | DEGRADED | OFFLINE
+          description  instructor-facing fault detail
+          action       "clear" clears the fault on <system> instead of
+                       setting one ("clear_all" clears every forced fault)
+        """
         system = p.get('system', 'unknown')
-        logger.warning(f"[SCENARIO] SIMULATED FAILURE: {system} — {p.get('description', '')}")
+        description = p.get('description', '')
+
+        # Instructor-visible log line, kept from the log-only era.
+        logger.warning(f"[SCENARIO] SIMULATED FAILURE: {system} — {description}")
+
+        from FMOFP.Systems.avionics.hardwareHealth.LRUstatus import (
+            get_lru_monitor, HealthState,
+        )
+        monitor = get_lru_monitor()
+
+        action = str(p.get('action', 'set')).strip().lower()
+        if action == 'clear_all':
+            cleared = monitor.clear_forced_fault(None)
+            logger.info(f"[SCENARIO] Cleared {cleared} forced fault(s)")
+            return
+        if action == 'clear':
+            cleared = monitor.clear_forced_fault(str(system))
+            logger.info(f"[SCENARIO] Cleared forced fault on {system} ({cleared})")
+            return
+
+        try:
+            state = HealthState(str(p.get('state', 'FAULT')).upper())
+        except ValueError:
+            logger.warning(
+                f"[SCENARIO] Unknown failure state {p.get('state')!r} — using FAULT"
+            )
+            state = HealthState.FAULT
+
+        lru_id = monitor.force_fault(
+            str(system), state=state, detail=description,
+            source=f"scenario:{self._name or 'unnamed'}",
+        )
+        logger.info(f"[SCENARIO] Forced {state.value} on LRU {lru_id}")
 
     # ------------------------------------------------------------------ loop
 

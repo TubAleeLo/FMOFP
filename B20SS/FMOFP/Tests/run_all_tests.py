@@ -42,6 +42,8 @@ SUITES = [
     (True,  "FMOFP.Tests.test_toctou_start_race_regression", 600),
     (True,  "FMOFP.Tests.test_precipitation_data_transfer", 300),
     (True,  "FMOFP.Tests.test_install_script", 300),
+    (True,  "FMOFP.Tests.test_bus_adapter", 300),
+    (True,  "FMOFP.Tests.test_scenario_failure_injection", 300),
 ]
 
 

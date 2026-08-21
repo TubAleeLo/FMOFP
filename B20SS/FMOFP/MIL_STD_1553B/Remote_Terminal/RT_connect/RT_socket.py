@@ -21,6 +21,7 @@ from FMOFP.MIL_STD_1553B.message_schemas import (
     MODE_NAME_MAP
 )
 from FMOFP.MIL_STD_1553B.metadata_codec import MetadataCodec
+from FMOFP.MIL_STD_1553B.bus_adapter import get_bus_adapter
 from FMOFP.Utils.logger.sys_logger import get_logger
 
 logger = get_logger()
@@ -33,6 +34,14 @@ class RT_sender:
     def __init__(self, max_workers=5):
         self.destination_ip = "localhost"
         self.destination_port = 5000  # BC_Listener is listening on this port
+        # Transport is now behind the bus adapter layer (bus_adapter.py) so a
+        # real 1553B hardware interface can be swapped in via
+        # busAdapterConfig.xml without touching this class. The default
+        # SocketBusAdapter reproduces the previous inline socket code exactly
+        # (destination_ip/destination_port above are kept for backwards
+        # compatibility of anything that reads them; the adapter owns the
+        # live values).
+        self._bus_adapter = get_bus_adapter('rt')
         self.executor = ThreadPoolExecutor(max_workers=max_workers)
         self.is_shutting_down = False
         self.shutdown_event = threading.Event()
@@ -355,106 +364,98 @@ class RT_sender:
         MAX_SAFE_SIZE = 900  #  buffer safety threshold
         
         try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as socket_variable:
-                logger.info(f"RT_sender connecting to {self.destination_ip}:{self.destination_port}")
-                socket_variable.connect((self.destination_ip, self.destination_port))
-                logger.info("RT_sender connection established")
-                
-                #  SAFETY: Use chunked transmission for large messages
-                # This prevents buffer overflow and string truncation errors
-                if len(msg) > MAX_SAFE_SIZE:
-                    logger.info(f"Message exceeds safe buffer size ({len(msg)} bytes), using chunked transmission")
-                    
-                    # For large messages, always use the block transfer protocol instead
-                    # This ensures proper splitting and reassembly
-                    if isinstance(message, dict) and 'data' in message:
-                        logger.info(f"Converting large message to block transfer format")
-                        # Disconnect and use the block transfer protocol instead
-                        socket_variable.close()
-                        
-                        # If message has frames but is still too large for direct transmission
-                        # Ensure block transfer is used
-                        if 'frames' in message:
-                            return self._send_large_message(message)
-                        else:
-                            # Convert data to frames first
-                            from FMOFP.MIL_STD_1553B.Remote_Terminal.RT_messaging.RT_msg import RT_construct
-                            rt_construct = RT_construct()
-                            
-                            status_word = message.get('status_word', '')
-                            data_frames = []
-                            
-                            # Convert data items to 20-bit frames
-                            if isinstance(message['data'], list):
-                                for item in message['data']:
-                                    if isinstance(item, (int, float)):
-                                        data_frames.append(rt_construct.construct_data_word(int(item)))
-                                    elif isinstance(item, str) and len(item) == 20:
-                                        data_frames.append(item)
-                                    else:
-                                        data_frames.append(rt_construct.construct_data_word(0))
-                                
-                                # Create frame list with status word first
-                                message_with_frames = message.copy()
-                                message_with_frames['frames'] = [status_word] + data_frames
-                                
-                                # Use block transfer protocol
-                                return self._send_large_message(message_with_frames)
-                    
-                    # Fallback for other message types: limited metadata
-                    # Create a simplified version with only essential fields
-                    if isinstance(message, dict):
-                        # Create simplified message with only the most essential fields
-                        simplified_msg = None
-                        
-                        if 'frames' in message:
-                            # If we have frames, just send those with request_id
-                            simplified_dict = {
-                                'frames': message['frames'],
-                                'request_id': message.get('request_id')
-                            }
-                            
-                            # Add only minimal metadata
-                            if 'metadata' in message:
-                                simplified_dict['metadata'] = {
-                                    'message_type': message['metadata'].get('message_type', ''),
-                                    'command_type': message['metadata'].get('command_type', ''),
-                                    'command_name': message['metadata'].get('command_name', '')
-                                }
-                                
-                            simplified_msg = json.dumps(simplified_dict).encode()
-                        else:
-                            # Without frames, just send the minimal required fields
-                            # (This should rarely happen after our other changes)
-                            simplified_dict = {
-                                'request_id': message.get('request_id')
-                            }
-                            
-                            # If we have a status word, include it
-                            if 'status_word' in message:
-                                simplified_dict['status_word'] = message['status_word']
-                                
-                            simplified_msg = json.dumps(simplified_dict).encode()
-                        
-                        logger.info(f"Sending simplified message with length: {len(simplified_msg)} bytes")
-                        socket_variable.sendall(simplified_msg)
+            # Wire transfer now goes through the configured bus adapter
+            # (socket by default — identical connect/sendall/close semantics
+            # and error handling to the inline code this replaced). One
+            # deliberate improvement: the block-transfer conversion branch
+            # below no longer opens a throwaway TCP connection first just to
+            # close it unused before delegating to _send_large_message().
+            payload = msg
+
+            #  SAFETY: Use chunked transmission for large messages
+            # This prevents buffer overflow and string truncation errors
+            if len(msg) > MAX_SAFE_SIZE:
+                logger.info(f"Message exceeds safe buffer size ({len(msg)} bytes), using chunked transmission")
+
+                # For large messages, always use the block transfer protocol instead
+                # This ensures proper splitting and reassembly
+                if isinstance(message, dict) and 'data' in message:
+                    logger.info(f"Converting large message to block transfer format")
+
+                    # If message has frames but is still too large for direct transmission
+                    # Ensure block transfer is used
+                    if 'frames' in message:
+                        return self._send_large_message(message)
                     else:
-                        # For non-dict messages, send as is and hope for the best
-                        logger.info(f"Sending non-dict message directly")
-                        socket_variable.sendall(msg)
+                        # Convert data to frames first
+                        from FMOFP.MIL_STD_1553B.Remote_Terminal.RT_messaging.RT_msg import RT_construct
+                        rt_construct = RT_construct()
+
+                        status_word = message.get('status_word', '')
+                        data_frames = []
+
+                        # Convert data items to 20-bit frames
+                        if isinstance(message['data'], list):
+                            for item in message['data']:
+                                if isinstance(item, (int, float)):
+                                    data_frames.append(rt_construct.construct_data_word(int(item)))
+                                elif isinstance(item, str) and len(item) == 20:
+                                    data_frames.append(item)
+                                else:
+                                    data_frames.append(rt_construct.construct_data_word(0))
+
+                            # Create frame list with status word first
+                            message_with_frames = message.copy()
+                            message_with_frames['frames'] = [status_word] + data_frames
+
+                            # Use block transfer protocol
+                            return self._send_large_message(message_with_frames)
+
+                # Fallback for other message types: limited metadata
+                # Create a simplified version with only essential fields
+                if isinstance(message, dict):
+                    # Create simplified message with only the most essential fields
+                    if 'frames' in message:
+                        # If we have frames, just send those with request_id
+                        simplified_dict = {
+                            'frames': message['frames'],
+                            'request_id': message.get('request_id')
+                        }
+
+                        # Add only minimal metadata
+                        if 'metadata' in message:
+                            simplified_dict['metadata'] = {
+                                'message_type': message['metadata'].get('message_type', ''),
+                                'command_type': message['metadata'].get('command_type', ''),
+                                'command_name': message['metadata'].get('command_name', '')
+                            }
+                    else:
+                        # Without frames, just send the minimal required fields
+                        # (This should rarely happen after our other changes)
+                        simplified_dict = {
+                            'request_id': message.get('request_id')
+                        }
+
+                        # If we have a status word, include it
+                        if 'status_word' in message:
+                            simplified_dict['status_word'] = message['status_word']
+
+                    payload = json.dumps(simplified_dict).encode()
+                    logger.info(f"Sending simplified message with length: {len(payload)} bytes")
                 else:
-                    # Normal send for messages within buffer size
-                    socket_variable.sendall(msg)
-                    
-                logger.info(f"Message sent successfully")
-                
-                # Log message flow trace just like BC
-                logger.info(f"Message flow trace: RT_sender -> BC_Listener")
-                
-                return True
-        except ConnectionRefusedError:
-            logger.error(f"Connection refused to {self.destination_ip}:{self.destination_port}")
-            return False
+                    # For non-dict messages, send as is and hope for the best
+                    logger.info(f"Sending non-dict message directly")
+                    payload = msg
+
+            if not self._bus_adapter.transmit(payload):
+                return False
+
+            logger.info(f"Message sent successfully")
+
+            # Log message flow trace just like BC
+            logger.info(f"Message flow trace: RT_sender -> BC_Listener")
+
+            return True
         except Exception as e:
             logger.error(f"Error sending message: {str(e)}")
             return False
@@ -567,15 +568,12 @@ class RT_sender:
                     msg = json.dumps(frames_only).encode()
                     logger.info(f"Frames-only size: {len(msg)} bytes")
             
-            # Use direct socket transmission to prevent recursive behavior
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as socket_variable:
-                logger.info(f"Opening direct socket to {self.destination_ip}:{self.destination_port}")
-                socket_variable.connect((self.destination_ip, self.destination_port))
-                socket_variable.sendall(msg)
+            # Use direct adapter transmission to prevent recursive behavior
+            # (previously an inline socket; the default SocketBusAdapter has
+            # identical connect/sendall/close and error-return semantics)
+            if self._bus_adapter.transmit(msg):
                 logger.info(f"Chunk sent successfully")
                 return True
-        except ConnectionRefusedError:
-            logger.error(f"Connection refused to {self.destination_ip}:{self.destination_port} when sending chunk")
             return False
         except Exception as e:
             logger.error(f"Error sending chunk: {str(e)}")
