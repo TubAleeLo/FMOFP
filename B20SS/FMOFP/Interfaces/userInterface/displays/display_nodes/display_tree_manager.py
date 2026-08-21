@@ -250,7 +250,7 @@ class DisplayTreeManager:
                         from ..radar.weather_radar_widget import get_weather_radar_widget
                         widget = get_weather_radar_widget()
                         if widget and hasattr(widget, 'display') and isinstance(widget.display, WeatherRadarDisplay):
-                            logger.warning(f"[DISPLAY_TREE] Found WeatherRadarDisplay instance in widget")
+                            logger.debug(f"[DISPLAY_TREE] Found WeatherRadarDisplay instance in widget")
                             display = widget.display
                             # Add the display as a subscriber to the radar node
                             if hasattr(display, '_handle_data_update'):

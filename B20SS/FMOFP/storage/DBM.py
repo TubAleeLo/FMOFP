@@ -1099,7 +1099,13 @@ class DatabaseManager:
                 config_key = f"{system_name}:{config_path}"
                 
                 if config_key in _GLOBAL_TRACKING['processed_configs']:
-                    logger.warning(f"[DBM] Duplicate configuration call for: {system_name}. Skipping.")
+                    # DEBUG, not WARNING: this is the dedup guard working as
+                    # designed, not a problem. load_config() is legitimately
+                    # re-entered per SystemDatabase construction, so every
+                    # boot emitted 14 of these per configured system (238
+                    # lines of a 558-warning run) and drowned out real
+                    # warnings. Reclassified August 2026.
+                    logger.debug(f"[DBM] Duplicate configuration call for: {system_name}. Skipping.")
                     continue
                     
                 _GLOBAL_TRACKING['processed_configs'].add(config_key)

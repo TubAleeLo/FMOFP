@@ -266,15 +266,15 @@ class RadarDisplayDataCoordinator:
         current_time = time.time()
         if current_time - self._storage_log_collections[data_type]['last_log_time'] >= self._storage_log_collections[data_type]['log_interval']:
             logger.info(f"[RADAR_DATA_COORD] {data_type.upper()} STORAGE SUMMARY:")
-            logger.warning(f"  - Total stored since last log: {self._storage_log_collections[data_type]['total_stored']}")
-            logger.warning(f"  - Current collection has {len(self._storage_log_collections[data_type]['stored_items'])} items")
+            logger.debug(f"  - Total stored since last log: {self._storage_log_collections[data_type]['total_stored']}")
+            logger.debug(f"  - Current collection has {len(self._storage_log_collections[data_type]['stored_items'])} items")
 
             # Log a sample of the collection (up to 5 items)
             sample_size = min(5, len(self._storage_log_collections[data_type]['stored_items']))
             if sample_size > 0:
-                logger.warning(f"  - Sample of {sample_size} stored items:")
+                logger.debug(f"  - Sample of {sample_size} stored items:")
                 for i in range(sample_size):
-                    logger.warning(f"    Item {i}: {self._storage_log_collections[data_type]['stored_items'][i]}")
+                    logger.debug(f"    Item {i}: {self._storage_log_collections[data_type]['stored_items'][i]}")
 
             # Reset collection after logging
             self._storage_log_collections[data_type]['stored_items'] = []
@@ -407,19 +407,19 @@ class RadarDisplayDataCoordinator:
         # Log stats periodically
         current_time = time.time()
         if current_time - self._retrieval_stats[data_type]['last_log_time'] >= self._retrieval_stats[data_type]['log_interval']:
-            logger.warning(f"[RADAR_DATA_COORD] {data_type.upper()} RETRIEVAL SUMMARY:")
-            logger.warning(f"  - Retrieval attempts: {self._retrieval_stats[data_type]['retrieve_count']}")
-            logger.warning(f"  - Empty results: {self._retrieval_stats[data_type]['empty_count']}")
-            logger.warning(f"  - Backup used: {self._retrieval_stats[data_type]['backup_used_count']}")
-            logger.warning(f"  - Total items returned: {self._retrieval_stats[data_type]['total_items_returned']}")
+            logger.debug(f"[RADAR_DATA_COORD] {data_type.upper()} RETRIEVAL SUMMARY:")
+            logger.debug(f"  - Retrieval attempts: {self._retrieval_stats[data_type]['retrieve_count']}")
+            logger.debug(f"  - Empty results: {self._retrieval_stats[data_type]['empty_count']}")
+            logger.debug(f"  - Backup used: {self._retrieval_stats[data_type]['backup_used_count']}")
+            logger.debug(f"  - Total items returned: {self._retrieval_stats[data_type]['total_items_returned']}")
 
             if self._retrieval_stats[data_type]['sample_item']:
-                logger.warning(f"  - Sample item: {self._retrieval_stats[data_type]['sample_item']}")
+                logger.debug(f"  - Sample item: {self._retrieval_stats[data_type]['sample_item']}")
 
             # Check current and backup data for this logging cycle
-            logger.warning(f"  - Current data size: {len(self._data_store[data_type]['current'])}")
-            logger.warning(f"  - Backup data size: {len(self._data_store[data_type]['backup'])}")
-            logger.warning(f"  - Current use_backup setting: {use_backup}")
+            logger.debug(f"  - Current data size: {len(self._data_store[data_type]['current'])}")
+            logger.debug(f"  - Backup data size: {len(self._data_store[data_type]['backup'])}")
+            logger.debug(f"  - Current use_backup setting: {use_backup}")
 
             # Reset stats
             self._retrieval_stats[data_type] = {
@@ -768,7 +768,7 @@ class RadarDisplayDataCoordinator:
         # Remove all items marked as None (filtered out)
         processed_items = [item for item in processed_items if item is not None]
 
-        logger.warning(f"[RADAR_DATA_COORD] Finished processing: {len(processed_items)} valid items retained, {filtered_count} filtered out")
+        logger.debug(f"[RADAR_DATA_COORD] Finished processing: {len(processed_items)} valid items retained, {filtered_count} filtered out")
         return processed_items
 
     def cleanup_expired(self) -> None:

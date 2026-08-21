@@ -699,64 +699,94 @@ class UserCLI:
 
     def get_commands(self):
         """Get commands from user input."""
-        try:
-            while not self.stop_threads:
-                if self.state_manager.cli_state_node is not None:
-                    if (self.cli_enabled and not self._stdin_eof
-                            and userCLIStates.ACCEPTING_COMMANDS.name in self.state_manager.get_cli_state().name):
-                        if not self.prompt_shown:
-                            print("\nEnter a command: ", end='', flush=True)
-                            self.prompt_shown = True
-                        try:
-                            if os.name == 'posix':
-                                command = self._read_command_posix()
-                                if command is None:
-                                    # Nothing arrived within the poll
-                                    # window -- loop back around so the
-                                    # outer `while not self.stop_threads`
-                                    # check gets a chance to run instead of
-                                    # staying blocked in input().
-                                    continue
-                            else:
-                                command = input()
-                        except EOFError:
-                            # No interactive stdin attached (headless/CI/
-                            # automated run). Previously this propagated up
-                            # to the broad except below, which logged an
-                            # ERROR and let the whole thread exit -- and the
-                            # startup sequence would then try to restart
-                            # this same Thread object, which always failed
-                            # with "threads can only be started once" (a
-                            # Python Thread can only ever be started once).
-                            # Handle it here instead: log once, disable
-                            # further input attempts, and keep the thread
-                            # alive in its idle loop so nothing downstream
-                            # thinks it needs restarting.
-                            logger.info(
-                                "CLI input: no interactive terminal attached "
-                                "(EOF on stdin) -- command input disabled for "
-                                "this session; other systems are unaffected."
-                            )
-                            self._stdin_eof = True
-                            self.prompt_shown = False
-                            continue
-                        if command:
-                            # Handle test command directly
-                            if command == "test":
-                                self._process_command(command)
-                            else:
-                                self.command_queue.put(command)
-                                self.command_received.set()
-                            self.prompt_shown = False
-                        time.sleep(0.1)
+        # Per-iteration error containment. The whole loop used to sit
+        # inside a single try/except, so ONE unexpected exception ended
+        # this thread for good -- and because a threading.Thread cannot
+        # be restarted, nothing could bring command input back for the
+        # rest of the session. Each iteration is now guarded on its own:
+        # transient failures are logged and the loop continues, with a
+        # circuit breaker so a persistently failing iteration cannot spin
+        # hot forever. (The EOF-on-stdin case is still handled inline
+        # below -- it is expected on headless runs, not an error.)
+        consecutive_errors = 0
+        last_error_time = 0.0
+        _MAX_CONSECUTIVE_ERRORS = 10
+        while not self.stop_threads:
+            try:
+                    if self.state_manager.cli_state_node is not None:
+                        if (self.cli_enabled and not self._stdin_eof
+                                and userCLIStates.ACCEPTING_COMMANDS.name in self.state_manager.get_cli_state().name):
+                            if not self.prompt_shown:
+                                print("\nEnter a command: ", end='', flush=True)
+                                self.prompt_shown = True
+                            try:
+                                if os.name == 'posix':
+                                    command = self._read_command_posix()
+                                    if command is None:
+                                        # Nothing arrived within the poll
+                                        # window -- loop back around so the
+                                        # outer `while not self.stop_threads`
+                                        # check gets a chance to run instead of
+                                        # staying blocked in input().
+                                        continue
+                                else:
+                                    command = input()
+                            except EOFError:
+                                # No interactive stdin attached (headless/CI/
+                                # automated run). Previously this propagated up
+                                # to the broad except below, which logged an
+                                # ERROR and let the whole thread exit -- and the
+                                # startup sequence would then try to restart
+                                # this same Thread object, which always failed
+                                # with "threads can only be started once" (a
+                                # Python Thread can only ever be started once).
+                                # Handle it here instead: log once, disable
+                                # further input attempts, and keep the thread
+                                # alive in its idle loop so nothing downstream
+                                # thinks it needs restarting.
+                                logger.info(
+                                    "CLI input: no interactive terminal attached "
+                                    "(EOF on stdin) -- command input disabled for "
+                                    "this session; other systems are unaffected."
+                                )
+                                self._stdin_eof = True
+                                self.prompt_shown = False
+                                continue
+                            if command:
+                                # Handle test command directly
+                                if command == "test":
+                                    self._process_command(command)
+                                else:
+                                    self.command_queue.put(command)
+                                    self.command_received.set()
+                                self.prompt_shown = False
+                            time.sleep(0.1)
+                        else:
+                            time.sleep(0.1)
                     else:
                         time.sleep(0.1)
+            except Exception:
+                now = time.time()
+                # Errors more than 30s apart are unrelated blips, not a
+                # stuck loop -- restart the count rather than creeping
+                # toward the breaker over a long, healthy session.
+                if now - last_error_time > 30:
+                    consecutive_errors = 1
                 else:
-                    time.sleep(0.1)
-        except Exception as error:
-            logger.error("Exception occurred in get_commands", exc_info=True)
-        finally:
-            pass
+                    consecutive_errors += 1
+                last_error_time = now
+                logger.error(
+                    f'Exception occurred in get_commands (consecutive: {consecutive_errors}/{_MAX_CONSECUTIVE_ERRORS})',
+                    exc_info=True,
+                )
+                if consecutive_errors >= _MAX_CONSECUTIVE_ERRORS:
+                    logger.error(
+                        'get_commands: too many consecutive failures -- '
+                        'disabling CLI command input for this session.'
+                    )
+                    self.cli_enabled = False
+                    return
+                time.sleep(0.5)
 
     def output_commands(self):
         try:

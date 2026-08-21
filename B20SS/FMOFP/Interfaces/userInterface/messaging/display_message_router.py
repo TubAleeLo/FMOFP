@@ -935,7 +935,7 @@ class DisplayMessageRouter:
                 found_radar_display = False
                 for widget in getattr(self._tree_manager, '_widgets', []):
                     if isinstance(widget, RadarWidget):
-                        logger.warning("[DISPLAY_ROUTE] Found WeatherRadarDisplay instance in widget")
+                        logger.debug("[DISPLAY_ROUTE] Found WeatherRadarDisplay instance in widget")
                         weather_display = widget.display
                         if isinstance(weather_display, WeatherRadarDisplay):
                             radar_node.add_subscriber(weather_display._handle_data_update)
@@ -1339,7 +1339,7 @@ class DisplayMessageRouter:
                 found_radar_display = False
                 for widget in getattr(self._tree_manager, '_widgets', []):
                     if isinstance(widget, RadarWidget):
-                        logger.warning("[DISPLAY_ROUTE] Found WeatherRadarDisplay instance in widget")
+                        logger.debug("[DISPLAY_ROUTE] Found WeatherRadarDisplay instance in widget")
                         weather_display = widget.display
                         if isinstance(weather_display, WeatherRadarDisplay):
                             radar_node.add_subscriber(weather_display._handle_data_update)

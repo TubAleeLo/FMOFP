@@ -132,6 +132,25 @@ class ThreadManager:
             if managed_thread.thread.is_alive():
                 return False
 
+            # is_alive() alone is NOT a sufficient guard: a threading.Thread
+            # that has already run to completion is not alive, but calling
+            # .start() on it still raises "RuntimeError: threads can only be
+            # started once". That produced the intermittent
+            # "Error starting thread 'UserCLI_Input'/'UserCLI_Processing'"
+            # errors seen on live boots (those threads exit early when there
+            # is no interactive stdin, e.g. headless/offscreen runs, and a
+            # later start attempt then hit a dead-but-already-started
+            # Thread object). Thread.ident is None before the first start
+            # and stays set afterwards, so it distinguishes "never started"
+            # from "started and finished" without touching private state.
+            if managed_thread.thread.ident is not None:
+                logger.debug(
+                    f"Thread '{name}' has already run and exited "
+                    f"(state: {managed_thread.state}); a threading.Thread "
+                    f"cannot be restarted. Ignoring start request."
+                )
+                return False
+
             try:
                 managed_thread.set_state(ThreadState.STARTING)
                 managed_thread.thread.start()
