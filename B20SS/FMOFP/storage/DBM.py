@@ -23,11 +23,65 @@ _GLOBAL_TRACKING = {
     'processed_configs': set()
 }
 
+# ── Per-database write serialization ─────────────────────────────────────────
+#
+# SQLite permits exactly ONE writer per database file at a time, in WAL mode
+# as much as any other. Before August 2026 every writer took a pooled
+# connection FIRST and only then attempted `BEGIN IMMEDIATE`, so a thread
+# that lost the race sat inside SQLite's busy handler (and the hand-rolled
+# "database is locked" retry loop in execute_query) while still holding its
+# pooled connection. On cold start — every subsystem creating tables and
+# inserting at once — that reliably drained the flight_control_computer pool
+# and surfaced as "[DBM] Timeout waiting for available connection", the
+# long-standing open item in PLANNING.md.
+#
+# Writers now queue on a lightweight in-process mutex BEFORE acquiring a
+# connection, so a blocked writer costs a lock wait instead of a pooled
+# connection. This does not reduce write throughput: writes were already
+# serialized by SQLite itself: it only moves the queue to where it is cheap
+# and leaves the pool free for readers.
+#
+# Keyed by resolved db_path, not by system, because several systems share
+# one file (default.db and radar_data.db each back multiple systems), and
+# they must contend on the same mutex. RLock so that a thread which nests a
+# write inside another write on the same database cannot deadlock itself.
+_db_write_locks: Dict[str, threading.RLock] = {}
+_db_write_locks_guard = threading.Lock()
+
+
+def get_db_write_lock(db_path: str) -> threading.RLock:
+    """Return the process-wide write mutex for a database file."""
+    key = os.path.abspath(db_path)
+    with _db_write_locks_guard:
+        lock = _db_write_locks.get(key)
+        if lock is None:
+            lock = threading.RLock()
+            _db_write_locks[key] = lock
+        return lock
+
+
+class ConnectionPoolTimeout(Exception):
+    """Raised when no pooled connection becomes available within the wait
+    budget AND the pool is already at max_connections. Distinct from a
+    generic Exception so callers/tests can tell real saturation apart from
+    connection-creation failures."""
+
+
 class ConnectionPool:
-    def __init__(self, db_path, min_connections=2, max_connections=5):
+    # How long a caller waits for a connection to be returned once the pool
+    # is genuinely at capacity (max_connections all checked out). Only
+    # reached after the grow path has been tried -- see get_connection().
+    DEFAULT_ACQUIRE_TIMEOUT = 5
+
+    def __init__(self, db_path, min_connections=2, max_connections=5,
+                 acquire_timeout=None):
         self.db_path = db_path
         self.min_connections = min_connections
         self.max_connections = max_connections
+        self.acquire_timeout = (
+            self.DEFAULT_ACQUIRE_TIMEOUT if acquire_timeout is None
+            else acquire_timeout
+        )
         self.pool = Queue()
         self.connection_count = 0
         self.lock = threading.Lock()
@@ -71,33 +125,112 @@ class ConnectionPool:
             else:
                 conn.execute("PRAGMA journal_mode=WAL")  # Enable Write-Ahead logger
                 conn.execute("PRAGMA synchronous=NORMAL")  # Improve write performance
-            
+                # Cap WAL growth under the cold-start write burst (every
+                # subsystem creating tables and inserting at once). The
+                # default 1000-page autocheckpoint lets the -wal file grow
+                # large enough that checkpoints become long blocking events;
+                # checkpointing more often keeps each one short.
+                conn.execute("PRAGMA wal_autocheckpoint=256")
+
             # Enable foreign keys and set busy timeout
             conn.execute("PRAGMA foreign_keys=ON")
-            conn.execute("PRAGMA busy_timeout=5000")  # 5 second timeout
+            # 10s (was 5s), aligned with the hand-rolled "database is locked"
+            # retry deadlines in execute_query(). In-process writers are now
+            # serialized before they take a connection (see
+            # get_db_write_lock), so this budget only has to absorb
+            # contention from OTHER processes touching the same file — a
+            # second FMOFP instance, or a sqlite3 shell.
+            conn.execute("PRAGMA busy_timeout=10000")
             
             return conn
         except sqlite3.Error as e:
             logger.error(f"[DBM] Error creating connection to {self.db_path}: {e}")
             raise
 
-    def get_connection(self, timeout=5, for_transaction=False):
-        """Get a database connection, optionally marking it for transaction use"""
+    def get_connection(self, timeout=None, for_transaction=False):
+        """Get a database connection, optionally marking it for transaction use.
+
+        Acquisition order (fixed August 2026 — this ordering was the root
+        cause of the cold-start "[DBM] Timeout waiting for available
+        connection" errors tracked in PLANNING.md):
+
+          1. Non-blocking take from the pool — the common case.
+          2. If the pool is empty but the pool is still allowed to GROW
+             (connection_count < max_connections), create a connection
+             immediately.
+          3. Only when genuinely at capacity, block up to `timeout` seconds
+             for another thread to return one.
+
+        The original implementation did (3) BEFORE (2): it always blocked the
+        full 5-second timeout first and only then considered growing the
+        pool. With min=4/max=8 and a shared 20-worker executor, a cold-start
+        burst (every subsystem creating tables and writing at once) meant the
+        5th concurrent caller stalled a full 5s even though four more
+        connections were permitted — the pool effectively grew at one
+        connection per five seconds of stall, and once it did reach max every
+        further caller raised. Trying the grow path first removes both the
+        stall and the spurious saturation errors; a timeout now means the
+        pool is really at capacity, which is worth surfacing.
+        """
+        if timeout is None:
+            timeout = self.acquire_timeout
+
+        # 1. Fast path: a connection is sitting in the pool.
         try:
-            conn = self.pool.get(block=True, timeout=timeout)
+            conn = self.pool.get_nowait()
             if for_transaction:
-                # Mark connection as being used in a transaction
                 self.transaction_states[id(conn)] = True
             return conn
         except Empty:
+            pass
+
+        # 2. Grow path: capacity remains, so create rather than wait.
+        conn = self._grow_locked()
+        if conn is not None:
+            if for_transaction:
+                self.transaction_states[id(conn)] = True
+            return conn
+
+        # 3. At capacity: wait for a peer to return a connection.
+        try:
+            conn = self.pool.get(block=True, timeout=timeout)
+            if for_transaction:
+                self.transaction_states[id(conn)] = True
+            return conn
+        except Empty:
+            # One last grow attempt: a connection may have been discarded as
+            # invalid (decrementing connection_count) while we were waiting,
+            # which frees capacity without putting anything in the queue.
+            conn = self._grow_locked()
+            if conn is not None:
+                if for_transaction:
+                    self.transaction_states[id(conn)] = True
+                return conn
+            raise ConnectionPoolTimeout(
+                f"[DBM] Timeout waiting for available connection to database: "
+                f"{self.db_path} (pool at capacity: {self.max_connections})"
+            )
+
+    def _grow_locked(self):
+        """Create one new connection if the pool is below max_connections,
+        else return None. connection_count is incremented only AFTER the
+        connection is successfully created — the original code incremented
+        first, so a failing create_connection() (e.g. the 'unable to open
+        database' failure seen when the databases directory is missing)
+        permanently consumed a pool slot and shrank effective capacity for
+        the life of the process."""
+        with self.lock:
+            if self.connection_count >= self.max_connections:
+                return None
+            # Reserve the slot while holding the lock so two threads can't
+            # both pass the capacity check, then release it if creation fails.
+            self.connection_count += 1
+        try:
+            return self.create_connection()
+        except Exception:
             with self.lock:
-                if self.connection_count < self.max_connections:
-                    self.connection_count += 1
-                    conn = self.create_connection()
-                    if for_transaction:
-                        self.transaction_states[id(conn)] = True
-                    return conn
-            raise Exception(f"[DBM] Timeout waiting for available connection to database: {self.db_path}")
+                self.connection_count -= 1
+            raise
 
     def return_connection(self, conn):
         """Return a connection to the pool, handling transaction state"""
@@ -116,21 +249,36 @@ class ConnectionPool:
             
             if self.is_connection_valid(conn):
                 self.pool.put(conn)
-            else:
-                self.close_connection(conn)
-                with self.lock:
-                    self.connection_count -= 1
-                    if self.connection_count < self.min_connections:
-                        new_conn = self.create_connection()
-                        self.pool.put(new_conn)
-                        self.connection_count += 1
-        except Exception as e:
-            logger.error(f"[DBM] Error returning connection: {e}")
+                return
+
+            # Connection is dead: drop it and top the pool back up to
+            # min_connections. create_connection() is deliberately called
+            # OUTSIDE self.lock (it opens a file and runs several PRAGMAs);
+            # holding the pool lock across it stalled every other acquirer.
             self.close_connection(conn)
+            need_refill = False
             with self.lock:
                 self.connection_count -= 1
-                if conn_id in self.transaction_states:
-                    del self.transaction_states[conn_id]
+                if self.connection_count < self.min_connections:
+                    self.connection_count += 1   # reserve the slot
+                    need_refill = True
+            if need_refill:
+                try:
+                    self.pool.put(self.create_connection())
+                except Exception as e:
+                    with self.lock:
+                        self.connection_count -= 1   # release the reservation
+                    logger.error(f"[DBM] Error replacing dead connection: {e}")
+        except Exception as e:
+            # Only reached if the validity check or close() itself blew up.
+            # Do NOT decrement connection_count here: every path above that
+            # removes a connection has already accounted for it, and the
+            # original unconditional decrement here could double-count a
+            # single connection (silently granting the pool extra capacity
+            # over time).
+            logger.error(f"[DBM] Error returning connection: {e}")
+            with self.lock:
+                self.transaction_states.pop(conn_id, None)
 
     def is_connection_valid(self, conn):
         try:
@@ -149,7 +297,10 @@ class ConnectionPool:
         for _ in range(self.min_connections):
             conn = self.create_connection()
             self.pool.put(conn)
-            self.connection_count += 1
+            # connection_count is read/written by concurrent acquirers under
+            # self.lock; the original bare increment here raced with them.
+            with self.lock:
+                self.connection_count += 1
 
     def close_all(self):
         while not self.pool.empty():
@@ -162,9 +313,10 @@ class SystemDatabase:
         self.system_name = system_name
         self.db_path = db_path
         self.config = config
-        self.pool = ConnectionPool(db_path, 
+        self.pool = ConnectionPool(db_path,
                                    min_connections=config.get('min_connections', 2),
-                                   max_connections=config.get('max_connections', 5))
+                                   max_connections=config.get('max_connections', 5),
+                                   acquire_timeout=config.get('pool_timeout'))
         # Add system config to pool before initialization
         self.pool.add_system_config(system_name, config)
         self.pool.initialize()
@@ -201,9 +353,20 @@ class SystemDatabase:
                 tracker['count'] = 1
 
     @contextmanager
-    def get_connection(self, for_transaction=False):
-        """Get a database connection, optionally marking it for transaction use"""
+    def get_connection(self, for_transaction=False, serialize_write=False):
+        """Get a database connection, optionally marking it for transaction use.
+
+        With serialize_write=True the caller first queues on this database's
+        process-wide write mutex, and only then takes a pooled connection.
+        SQLite allows one writer per database file regardless, so this costs
+        nothing in throughput and keeps blocked writers from occupying pool
+        capacity while they wait (the cold-start pool-exhaustion cause fixed
+        in August 2026 — see get_db_write_lock).
+        """
         conn = None
+        write_lock = get_db_write_lock(self.db_path) if serialize_write else None
+        if write_lock is not None:
+            write_lock.acquire()
         try:
             conn = self.pool.get_connection(for_transaction=for_transaction)
             yield conn
@@ -213,6 +376,8 @@ class SystemDatabase:
         finally:
             if conn:
                 self.pool.return_connection(conn)
+            if write_lock is not None:
+                write_lock.release()
 
     def execute_query(self, query: str, params: Tuple = (), query_type: str = 'select', manage_transaction: bool = True) -> Optional[List[Tuple]]:
         """Execute a database query with optional transaction management.
@@ -278,7 +443,13 @@ class SystemDatabase:
         for attempt in range(retry_attempts):
             try:
                 logger.info(f"[DBM] Attempt {attempt + 1}/{retry_attempts}")
-                with self.get_connection(for_transaction=(manage_transaction and query_type != 'select')) as conn:
+                # serialize_write=True makes non-select queries queue on this
+                # database's write mutex BEFORE taking a pooled connection,
+                # so a writer waiting its turn costs a lock wait instead of
+                # an occupied connection (see get_db_write_lock).
+                with self.get_connection(
+                        for_transaction=(manage_transaction and query_type != 'select'),
+                        serialize_write=(query_type != 'select')) as conn:
                     # Configure connection for test environment
                     if in_test_env:
                         logger.info("[DBM] Configuring connection for test environment")
@@ -971,6 +1142,10 @@ class DatabaseManager:
                 if connection_config is not None:
                     system_config['min_connections'] = int(connection_config.get('min', config['min_connections']))
                     system_config['max_connections'] = int(connection_config.get('max', config['max_connections']))
+                    # Optional per-system override of how long a caller waits
+                    # once the pool is genuinely at capacity.
+                    if connection_config.get('timeout') is not None:
+                        system_config['pool_timeout'] = float(connection_config.get('timeout'))
                 
                 config['systems'][system_name] = system_config
                 logger.debug(f"[DBM] Loaded configuration for system: {system_name}")
@@ -990,7 +1165,16 @@ class DatabaseManager:
         # Create a directory for lock files if it doesn't exist
         lock_dir = os.path.join('FMOFP', 'storage', 'locks')
         os.makedirs(lock_dir, exist_ok=True)
-        
+
+        # Ensure the databases directory exists for EVERY path below. The
+        # original code only created it in the third branch of the loop (the
+        # "not yet initialized" path), so a process whose tracking markers or
+        # lock files already existed while the databases directory did not
+        # went straight to SystemDatabase(...) and failed with "[DBM] Error
+        # creating connection ...: unable to open database file" — live
+        # reproduced August 2026.
+        os.makedirs(os.path.join('FMOFP', 'storage', 'databases'), exist_ok=True)
+
         for system_name, system_config in self.config['systems'].items():
             db_name = system_config.get('db_name')
             if not db_name:

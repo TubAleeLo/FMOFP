@@ -44,6 +44,7 @@ SUITES = [
     (True,  "FMOFP.Tests.test_install_script", 300),
     (True,  "FMOFP.Tests.test_bus_adapter", 300),
     (True,  "FMOFP.Tests.test_scenario_failure_injection", 300),
+    (True,  "FMOFP.Tests.test_db_connection_pool", 300),
 ]
 
 

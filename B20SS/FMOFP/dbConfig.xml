@@ -32,7 +32,10 @@
     <batch_operation type="insert" size="1000" interval="5" />
     <batch_operation type="update" size="500" interval="10" />
     <retry_policy attempts="3" delay="1" />
-    <connection_pool min="2" max="5" />
+    <!-- max raised 5 -> 10 (August 2026): this pool is shared by every
+         system that has no dedicated <system> entry, competing against a
+         20-worker shared executor. -->
+    <connection_pool min="2" max="10" />
   </system>
 
   <!-- Radar Management System -->
@@ -148,7 +151,9 @@
     <batch_operation type="insert" size="2000" interval="3" />
     <batch_operation type="update" size="1000" interval="5" />
     <retry_policy attempts="5" delay="1" />
-    <connection_pool min="4" max="8" />
+    <!-- max raised 8 -> 12 (August 2026): this is the pool that surfaced the
+         cold-start "Timeout waiting for available connection" errors. -->
+    <connection_pool min="4" max="12" />
   </system>
   
   <!-- Flight Management System -->
