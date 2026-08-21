@@ -14,7 +14,7 @@ The Multi-Function Display (MFD) provides a sophisticated display framework with
 - **Radar Integration:** ✅ **OPERATIONAL** - All 5 radar types with real-time data handling
 - **Interactive Interface:** ✅ **OPERATIONAL** - Mouse-driven menu system with page navigation
 - **Visual Effects:** ✅ **OPERATIONAL** - Enhanced themes with gradients and glow effects
-- **System Monitoring:** ❌ **PLACEHOLDER** - Static text displays, no real system integration
+- **System Monitoring:** ✅ **OPERATIONAL** - Live engine, GCAS, and performance-exceedance data
 - **Navigation Display:** ❌ **BASIC IMPLEMENTATION** - Compass rose only, no navigation data
 - **Settings Management:** ✅ **OPERATIONAL** - Theme and display type configuration
 
@@ -253,29 +253,41 @@ Target Rendering:
 
 The MFD provides comprehensive system status monitoring across multiple aircraft subsystems with real-time status updates, color-coded indicators, and organized display layouts.
 
-### Systems Page ❌ **PLACEHOLDER IMPLEMENTATION**
+### Systems Page ✅ **OPERATIONAL**
+
+> **Corrected in manual v1.2.** Earlier revisions described this page as a
+> static placeholder. It now reads live data (`draw_systems_page` in
+> `mfd.py`).
 
 **Current Implementation:**
-```
-Static Display Elements:
-- ENGINES: NORMAL (hardcoded text)
-- HYDRAULICS: NORMAL (hardcoded text)
-- ELECTRICAL: NORMAL (hardcoded text)
-- FUEL: NORMAL (hardcoded text)
-- ECS: NORMAL (hardcoded text)
-```
+
+The page pulls from three live sources, each degrading gracefully if its
+subsystem has not started yet:
+
+| Source | Provides |
+|--------|----------|
+| `EngineControlUnit.get_data()` | Live engine parameters |
+| `GCAS.get_alerts()` | Ground-collision avoidance alerts |
+| `PerformanceMonitor.get_exceedances()` | Performance envelope exceedances |
 
 **Actual Status:**
-- **System Integration:** ❌ **NOT IMPLEMENTED** - No connection to actual aircraft systems
-- **Real-Time Data:** ❌ **NOT IMPLEMENTED** - All status values are static text
-- **Status Logic:** ❌ **NOT IMPLEMENTED** - No monitoring or threshold detection
+- **System Integration:** ✅ **OPERATIONAL** - Connected to ECU, GCAS, and performance monitoring
+- **Real-Time Data:** ✅ **OPERATIONAL** - Values reflect live subsystem state
+- **Status Logic:** ✅ **OPERATIONAL** - Alert and exceedance reporting
 - **Enhanced Visuals:** ✅ **OPERATIONAL** - Basic box drawing with enhanced text rendering
 
 ### Weapons Status Display ❌ **PLACEHOLDER IMPLEMENTATION**
 
 **Current Implementation:**
 - **Station Display:** Basic numbered boxes (1-5) with no weapon data
-- **Ordnance Status:** ❌ **NOT IMPLEMENTED** - No weapon system integration
+- **Ordnance Status:** ❌ **NOT IMPLEMENTED** on this MFD page - No weapon system integration here
+
+> **Note:** stores management *is* implemented, but as a separate display
+> rather than an MFD page. See the **Stores Management Display (SMS)**
+> (`Interfaces/userInterface/displays/sms.py`), which reports live armed
+> state, stores weight, and armed counts, and is covered by the
+> `test_displays_headless` suite. The MFD's own weapons page remains a
+> placeholder.
 - **Station Configuration:** Static graphical layout only
 - **Enhanced Rendering:** ✅ **OPERATIONAL** - Basic visual station indicators
 
@@ -289,21 +301,16 @@ Implementation Reality:
 - No real-time status updates
 ```
 
-### Communications Status ❌ **PLACEHOLDER IMPLEMENTATION**
+### Communications Status ✅ **OPERATIONAL**
 
-**Current Implementation:**
-```
-Static Display Elements:
-- UHF: ACTIVE (hardcoded text)
-- VHF: ACTIVE (hardcoded text)
-- HF: ACTIVE (hardcoded text)
-- SATCOM: ACTIVE (hardcoded text)
-```
+> **Corrected in manual v1.2.** Earlier revisions described this page as a
+> static placeholder. It now reads live data from `CommsService`
+> (`draw_comms_page` in `mfd.py`).
 
 **Actual Status:**
-- **Radio Integration:** ❌ **NOT IMPLEMENTED** - No connection to communication systems
-- **Real-Time Status:** ❌ **NOT IMPLEMENTED** - All status values are static
-- **Signal Quality:** ❌ **NOT IMPLEMENTED** - No signal strength monitoring
+- **Radio Integration:** ✅ **OPERATIONAL** - Reads live state from `CommsService`
+- **Real-Time Status:** ✅ **OPERATIONAL** - Values reflect live service state
+- **Signal Quality:** ⚠️ **IN DEVELOPMENT** - Link state is reported; signal-strength modelling is not implemented
 - **Enhanced Display:** ✅ **OPERATIONAL** - Basic box drawing with enhanced text rendering
 
 ## 8.5 Navigation Display
@@ -344,11 +351,21 @@ Missing Navigation Integration:
 
 ## 8.6 Tactical Display
 
-### Overview ❌ **NO DEDICATED TACTICAL DISPLAY** (Radar Data Only)
+### Overview ✅ **OPERATIONAL** (Tactical Situation Display)
 
-The MFD does not have a dedicated tactical display page. Tactical information is only available through individual radar displays on the radar page, with no integrated tactical overview or threat assessment capabilities.
+> **Corrected in manual v1.2.** Earlier revisions stated that no dedicated
+> tactical display existed. The **Tactical Situation Display (TSD)** is
+> implemented (`Interfaces/userInterface/displays/tsd.py`), draws fused
+> tracks from `RadarDataFusion.get_fused_tracks()` rather than any single
+> radar, supports a COMBAT mode, and is covered by the
+> `test_displays_headless` suite in CI.
 
-### Current Tactical Features ❌ **LIMITED TO RADAR PAGES**
+The TSD provides the integrated tactical overview that the MFD's per-radar
+pages cannot: it aggregates contacts across radars into a single fused
+picture. Per-radar detail remains available on the individual radar pages
+described below.
+
+### Tactical Features Available Through the Radar Pages
 
 **Available Through Radar Integration:**
 - **Target Tracking:** Only available when viewing targeting radar page
@@ -381,16 +398,21 @@ Missing Tactical Integration:
 
 ## 8.7 Communications Display
 
-### Overview ❌ **PLACEHOLDER ONLY** (Static Text Display)
+### Overview ✅ **OPERATIONAL**
 
-The communications display provides only static placeholder text with no actual communication system integration. All displayed information is hardcoded and does not reflect real communication status.
+> **Corrected in manual v1.2.** Earlier revisions described this page as
+> hardcoded placeholder text. `draw_comms_page` reads live state from
+> `CommsService`.
 
-### Current Communication Features ❌ **STATIC PLACEHOLDERS**
+### Current Communication Features ✅ **OPERATIONAL**
 
-**Placeholder Elements:**
-- **Radio Channel Display:** Static text labels (UHF, VHF, HF, SATCOM)
-- **Status Indicators:** Hardcoded "ACTIVE" text for all channels
-- **Enhanced Rendering:** ✅ **OPERATIONAL** - Basic box drawing with enhanced text
+**Live Elements:**
+- **Radio Channel Display:** Channels reported from `CommsService`
+- **Status Indicators:** Reflect live service state, not hardcoded text
+- **Enhanced Rendering:** ✅ **OPERATIONAL** - Box drawing with enhanced text
+
+**Still outstanding:**
+- **Signal Quality:** ⚠️ Signal-strength and link-margin modelling is not implemented
 
 **Critical Limitations:**
 ```

@@ -804,6 +804,40 @@ note that predates the August 2026 audit.
 
 ---
 
+## 16.1 Documentation Status (August 21, 2026)
+
+**User manual updated to v1.2 / FMOFP 1.2.0.** The manual had accumulated
+stale status markers — most consequentially it still described the weather
+radar → display integration as a 🐛 known issue in which "1553B
+communication prevents data display", a defect fixed some time ago. Every
+marker was re-checked against the code and, where possible, against a live
+run. Corrections made:
+
+| Claim in the manual | Reality | Evidence |
+|---|---|---|
+| Weather radar data cannot reach displays (🐛, ~12 markers across 5 files) | Operational | 104 bridge deliveries + 104 matching display updates in a live 50 s run |
+| Other radars' display integration "not yet implemented" | Operational for all 5 radars | `test_bridge_and_coordinator` covers every push function |
+| MFD Systems page is a static placeholder (❌) | Live | `draw_systems_page` reads ECU, GCAS, PerformanceMonitor |
+| MFD Communications page is hardcoded text (❌) | Live | `draw_comms_page` reads `CommsService` |
+| "No dedicated tactical display" (❌) | TSD exists | `tsd.py` draws `RadarDataFusion.get_fused_tracks()`, covered by `test_displays_headless` |
+| Wind shear / turbulence "planned" (❌) | Implemented | `WindShearProcessor`, `_process_turbulence_data`, display overlays |
+| Mission planning integration "planned" (❌) | Implemented | `draw_mission_page` with ROUTE/TARGETS/OOB |
+| Python 3.9+ (unqualified) | 3.9 is the installer minimum; CI verifies 3.10–3.14 | `install.py` `MIN_PYTHON` vs `ci.yml` matrix |
+
+Markers went from 20 active 🐛 to 0 (the 8 remaining occurrences are the
+status legend and explicit historical notes), and ❌ from 46 to 33 — the
+remainder verified as genuinely unimplemented (MFD nav page, MFD weapons
+page, and forward-looking "required features" lists).
+
+Content added: File 11 §11.1.1 documenting the bus adapter layer and the
+hardware driver contract; File 13 §13.5 rewritten around the 15-suite
+aggregating runner; Appendix C.1.3 for `busAdapterConfig.xml`; scenario
+`system_failure` event parameters; and a version history in the legal
+chapter. Deliberately left alone: the MFD nav and weapons pages, which are
+still placeholders, and whose ❌ markers are accurate.
+
+---
+
 ## 17. Daily Progress Log
 
 > **Provenance note (added August 21, 2026).** The repository history was

@@ -324,7 +324,11 @@ async def combined_precipitation_vil_flow_test(self):
         raise
 ```
 
-**Available Test Suites:**
+**Interactive Test Menu (debug CLI `test` command):**
+
+These nine entries run the live-system suites that require the full stack
+booted behind the debug CLI:
+
 - **Combined Precipitation & VIL Flow Test** - End-to-end weather data processing
 - **FMS System Test** - Flight management system validation
 - **Flight Control System Test** - Control surface and autopilot testing
@@ -334,6 +338,17 @@ async def combined_precipitation_vil_flow_test(self):
 - **SAR Radar Test** - Synthetic aperture radar testing
 - **Targeting Radar Test** - Target tracking and lock validation
 - **AEWC Radar Test** - Airborne early warning testing
+
+> **Changed in 1.2.0.** The menu previously advertised 25 entries, most of
+> which referenced test modules that did not exist and failed immediately
+> when selected. The dead entries and their handlers were removed; every
+> entry listed above resolves to a real module.
+
+### 13.4.2.1 Automated Test Suite
+
+The interactive menu above is for exploratory testing. The authoritative
+suite is the aggregating runner described in **Section 13.5**, which is what
+CI executes on every push.
 
 ### 13.4.3 Command Processing ✅ **OPERATIONAL**
 
@@ -396,7 +411,50 @@ def _handle_test_results(self, results):
 
 ## 13.5 Automated Test Suite ✅ **OPERATIONAL**
 
-Three standalone test suites verify the new display and communication components introduced in the Summer 2026 development session. Run each from the `B20SS/` directory with no test framework required.
+The authoritative test suite is the aggregating runner. Run it from the
+`B20SS/` directory; no test framework is required.
+
+```
+cd B20SS
+python FMOFP/Tests/run_all_tests.py
+```
+
+It runs **15 suites**, each in an isolated subprocess with its own watchdog
+timeout, and exits non-zero if any suite fails, times out, or crashes. A
+hang is treated as a failure rather than a stall — this matters, because the
+defect that once made the application unable to start was a deadlock that a
+suite without timeouts would have waited on forever.
+
+| Suite | Covers |
+|-------|--------|
+| `ci_test_boot_smoke` | The real entry path: no deadlock, `core.system_manager` imports, display-node updates complete, full boot reaches an operational state |
+| `test_bridge_and_coordinator` | Radar-to-display bridge delivery for all five radars, plus coordinator store/get/TTL/backup |
+| `test_displays_headless` | EICAS, TSD, and SMS display logic under offscreen Qt |
+| `ci_test_weather_radar` | Weather radar unit assertions |
+| `ci_test_scenario_engine` | Scenario XML parsing |
+| `test_power_fuel_thrust` | Power management, fuel system, thrust management |
+| `test_hydr_airframe_ecs_fdm_fitness_swcm` | Hydraulics, airframe, ECS, flight data monitoring, fitness, software config |
+| `test_toctou_start_race_regression` | Concurrent `start()` races across nine singletons |
+| `test_precipitation_data_transfer` | Precipitation transfer pipeline |
+| `test_install_script` | Installer step validation |
+| `test_bus_adapter` | Bus adapter transports, driver contract, sender integration |
+| `test_scenario_failure_injection` | Forced-fault overrides and scenario failure routing |
+| `test_db_connection_pool` | Database connection-pool acquisition, saturation, and leak behaviour |
+| `test_thread_and_cli_resilience` | Thread-restart guard and CLI error containment |
+| `test_radar_shutdown_health` | Normal shutdown is not reported as a radar fault |
+
+**Boot smoke test.** `ci_test_boot_smoke` runs first and as its own CI step.
+Its purpose is narrow and important: it exercises the program's actual entry
+path. A suite that never starts the application can stay green while the
+application cannot start at all — which is precisely what happened in an
+earlier build.
+
+
+Individual suites can also be run directly, as documented in the subsections
+below. Suites deliberately excluded from the runner — the CLI-harness tests
+listed in Section 13.4.2, the interactive holographic-display GUI test, and
+the performance profiler — are documented with their reasons in
+`run_all_tests.py`.
 
 ### 13.5.1 Bridge + Coordinator Tests
 

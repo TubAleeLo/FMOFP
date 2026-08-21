@@ -37,18 +37,19 @@ This software and documentation are proprietary and confidential. No part of thi
 - Holographic display system with advanced visual effects
 
 **Systems with Known Issues 🐛:**
-- **Weather Radar Display Integration** - Radar processing operational, display integration has 1553B communication issues
-- **Cross-System Data Flow** - Some data routing between systems has communication limitations
+- *(None currently. The weather radar display-integration issue listed in
+  earlier revisions was resolved in 1.2.0 — see File 02.)*
 
 **Systems in Development ⚠️:**
-- **Radar Display Integration** - All radar systems process data correctly, display integration under development
 - **Advanced Display Features** - Some display capabilities are partially implemented
-- **System Integration** - Full cross-system integration is ongoing
+- **Environmental Control System** - Readings are simulated placeholders rather than a modelled thermal system
 
 **Planned Features ❌:**
-- **Complete Radar-Display Integration** - Full data flow from all radar systems to displays
-- **Advanced Weather Detection** - Wind shear detection and advanced turbulence algorithms
-- **Mission Planning Integration** - Complete mission planning system integration
+- **Real MIL-STD-1553B Hardware Operation** - The software bus adapter layer
+  provides the integration point; no vendor driver ships with the system, so
+  operation against a physical interface card requires supplying one
+- **Distributed Operation** - 1553B addressing is fixed to loopback ports,
+  suitable for a single-host simulation only
 
 ---
 
@@ -117,9 +118,35 @@ In no event shall the development team be liable for any direct, indirect, incid
 
 ## Version History
 
-### Version B20SS (Current)
-**Release Date:** December 2024  
-**Status:** Active Development Build
+### FMOFP 1.2.0 (Current)
+**Release Date:** August 21, 2026
+**Status:** Active Development Build — completion build
+
+**Changes in this release:**
+- **Weather radar → display integration resolved.** The 1553B delivery
+  defect documented as a known issue through earlier revisions is fixed;
+  verified live at 104 bridge deliveries and 104 matching display updates
+  over a 50-second run.
+- **Scenario `system_failure` events made functional** — they now force
+  faults into the LRU health registry instead of only writing a log line.
+- **MIL-STD-1553B bus adapter layer** added, providing the documented
+  integration point for real interface hardware.
+- **Cold-start database connection-pool exhaustion fixed**, along with the
+  spurious shutdown health error and the debug-CLI dead test-menu entries.
+- **Clean boot log** — a normal run now completes with zero ERROR lines from
+  startup through graceful shutdown.
+
+### FMOFP 1.1.0
+**Release Date:** August 2026
+**Status:** Superseded
+
+- Post-audit build: 20 production-readiness audit rounds, the
+  `SystemStateManager` boot-deadlock fix, the full-suite CI runner, and the
+  subsystem wiring work.
+
+### Version B20SS (Original)
+**Release Date:** December 2024
+**Status:** Superseded — retained for reference
 
 **Major Features:**
 - Complete system architecture implementation
@@ -129,9 +156,10 @@ In no event shall the development team be liable for any direct, indirect, incid
 - Comprehensive documentation and user manual
 
 **Known Limitations:**
-- Weather radar display integration issues
-- Limited radar-to-display data flow
-- Some advanced features in development
+- No vendor driver for real MIL-STD-1553B interface hardware
+- Single-host operation only (fixed loopback 1553B addressing)
+- Environmental Control System readings are simulated placeholders
+- Some advanced display features remain partially implemented
 
 **Next Release Goals:**
 - Tenative

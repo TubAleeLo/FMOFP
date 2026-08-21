@@ -11,8 +11,15 @@
 #   1.1.0  — August 2026: post-audit build. All 20 production-readiness
 #            audit rounds, the SystemStateManager boot-deadlock fix, the
 #            full-suite CI runner, and the subsystem wiring work.
+#   1.2.0  — August 21 2026: completion build. Closes the last open items
+#            in PLANNING.md — the MIL-STD-1553B bus adapter layer
+#            (bus_adapter.py + busAdapterConfig.xml), functional scenario
+#            failure injection (LRU forced-fault overrides), the
+#            cold-start SQLite connection-pool fix, the debug-CLI test
+#            menu cleanup, and the log-noise/shutdown-reporting fixes.
+#            First build with a clean boot log: zero ERRORs end to end.
 #
 # Bump this when behavior changes meaningfully; keep the user manual's
 # front matter (FMOFP_User_Manual/00_Title_and_TOC.md) in step.
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"

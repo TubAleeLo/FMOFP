@@ -34,7 +34,7 @@
 - **Linux:** Ubuntu 20.04 LTS or CentOS 8 (experimental support)
 
 **Runtime Dependencies:**
-- **Python:** 3.9 or later with asyncio support
+- **Python:** 3.9 or later with asyncio support (installer minimum; CI verifies 3.10–3.14)
 - **PyQt6:** 6.8.1 or later for GUI components
 - **XML Parser:** Built-in xml.etree.ElementTree
 - **Threading:** Python threading and asyncio libraries
@@ -268,6 +268,30 @@ FCS_AUTOPILOT_COMMAND = "fcsAutopilotCommand"
     </systems>
 </database_configuration>
 ```
+
+#### C.1.3 busAdapterConfig.xml *(new in 1.2.0)*
+
+Selects the MIL-STD-1553B transport for each bus role. See File 11,
+Section 11.1.1 for the full description and the hardware driver contract.
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<busAdapters>
+    <!-- type: "socket" (default) | "loopback" | "hardware" -->
+    <adapter role="bc" type="socket"/>
+    <adapter role="rt" type="socket"/>
+</busAdapters>
+```
+
+| Attribute | Applies to | Meaning |
+|-----------|-----------|---------|
+| `role` | all | `bc` (Bus Controller) or `rt` (Remote Terminal) |
+| `type` | all | `socket` — local simulation (default); `loopback` — in-process, used by tests; `hardware` — physical interface card, requires a registered vendor driver |
+| `peer_host` | `socket` | Override the peer host (default `localhost`) |
+| `peer_port` | `socket` | Override the peer port (BC → 5001, RT → 5000) |
+
+**Deleting this file is safe.** Both roles then default to `socket` with the
+standard ports.
 
 ### C.2 Message Configuration
 
@@ -534,7 +558,7 @@ FCS_AUTOPILOT_COMMAND = "fcsAutopilotCommand"
 
 ### G.3 Software Standards
 
-- **Python 3.9+** - Programming language specification
+- **Python 3.9+** - Programming language specification (CI-verified range: 3.10–3.14)
 - **PyQt6** - Cross-platform GUI toolkit
 - **XML 1.0** - Extensible Markup Language specification
 - **JSON** - JavaScript Object Notation data interchange format

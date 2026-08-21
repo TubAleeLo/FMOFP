@@ -11,7 +11,7 @@
 The Flight Management Operating Flight Program (FMOFP) is a comprehensive avionics system designed for advanced military aircraft operations. This guide will help you get started with the system quickly and understand the essential operations needed for effective use.
 
 **Before You Begin:**
-- Ensure Python 3.9+ is installed
+- Ensure Python 3.9+ is installed (3.10–3.14 recommended — those are the versions verified in CI)
 - Verify PyQt6 dependencies are available
 - Have access to the FMOFP system files
 - Review the system status indicators used throughout this manual
@@ -87,7 +87,7 @@ The Flight Management Operating Flight Program (FMOFP) is a comprehensive avioni
 ### Pre-Startup Verification
 
 **System Requirements Check:**
-- [ ] **Python Version:** Verify Python 3.9 or later is installed
+- [ ] **Python Version:** Verify Python 3.9 or later is installed. The installer enforces 3.9 as the minimum; CI verifies 3.10 through 3.14, so 3.9 is permitted but untested
   ```
   python --version
   ```

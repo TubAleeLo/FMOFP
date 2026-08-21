@@ -48,6 +48,75 @@ The FMOFP system implements a comprehensive MIL-STD-1553B communication protocol
 | **RT Addresses** | 0-31 (32 total) | ✅ Operational |
 | **Subaddresses** | 0-31 per RT | ✅ Operational |
 | **Block Transfers** | Unlimited size | ✅ Operational |
+| **Transport** | Selectable (socket / loopback / hardware) | ✅ Operational |
+
+---
+
+## 11.1.1 Bus Adapter Layer ✅ **OPERATIONAL** *(new in 1.2.0)*
+
+Everything above this point — message construction, word encoding, block
+transfer, error injection — is independent of how bits actually move between
+the Bus Controller and the Remote Terminal. That final step is handled by the
+**bus adapter layer** (`MIL_STD_1553B/bus_adapter.py`), which is the single
+integration point for running FMOFP against real MIL-STD-1553B hardware.
+
+### Available Transports
+
+| Transport | When to use | Status |
+|-----------|-------------|--------|
+| **`socket`** | Default. Local simulation: BC transmits to the RT listener on `localhost:5001`, RT to the BC listener on `localhost:5000`. | ✅ Operational |
+| **`loopback`** | In-process delivery with no sockets. Used by the automated test suite. | ✅ Operational |
+| **`hardware`** | A physical MIL-STD-1553B interface card. Requires a vendor driver (see below). | ⚠️ Requires user-supplied driver |
+
+### Configuration
+
+Transport is chosen per bus role in `FMOFP/busAdapterConfig.xml`:
+
+```xml
+<busAdapters>
+    <adapter role="bc" type="socket"/>
+    <adapter role="rt" type="socket"/>
+</busAdapters>
+```
+
+`role` is `bc` or `rt`. For `socket`, the optional `peer_host` and
+`peer_port` attributes override the defaults. **Deleting the file is safe** —
+both roles then fall back to `socket` with the standard ports, which is
+exactly how the system behaved before this layer existed.
+
+### Running Against Real Hardware ⚠️
+
+**No vendor driver ships with FMOFP.** The adapter defines the contract; the
+driver — which is specific to your interface card and its SDK (Alta, DDC,
+Abaco, AIM, and so on) — must be supplied by you. A driver is any object
+providing three callables:
+
+```python
+class MyCardDriver:
+    def open(self):    ...                      # open card / channel
+    def close(self):   ...                      # release the card
+    def transmit(self, payload: bytes) -> bool: # put words on the wire
+        ...
+    def set_receive_callback(self, cb):         # optional
+        ...                                     # deliver received words to cb
+```
+
+Register it before the first message is sent, then select `hardware` in the
+configuration file:
+
+```python
+from FMOFP.MIL_STD_1553B.bus_adapter import register_hardware_driver
+register_hardware_driver('bc', MyCardDriver())
+```
+
+The driver decides how FMOFP's frame payloads map onto its card's word API —
+typically by decoding the 20-bit frame strings the senders already produce
+(3 sync bits + 16 data bits + parity; see `BC_msg.BC_construct`).
+
+**Until a driver is registered, selecting `hardware` fails with an explicit
+error** rather than silently doing nothing. This is deliberate: a simulation
+that quietly pretends to be talking to hardware is worse than one that
+refuses.
 
 ---
 

@@ -10,9 +10,9 @@ The Flight Management Operating Flight Program (FMOFP) is a comprehensive avioni
 
 ### Current Development Status
 
-**IMPORTANT:** The FMOFP system is currently in active development (Version B20SS). While core functionality is operational, several features have known limitations:
+**IMPORTANT:** The FMOFP system is in active development (Version B20SS, build 1.2.0). Core functionality is operational:
 
-- **Weather Radar:** ✅ **OPERATIONAL** radar processing, 🐛 **KNOWN ISSUES** with 1553B communication to displays
+- **Weather Radar:** ✅ **OPERATIONAL** radar processing, ✅ **OPERATIONAL** display integration (the 1553B delivery defect described in earlier manual revisions is fixed — see File 02)
 - **Other Radars:** ✅ **OPERATIONAL** radar processing, ✅ **OPERATIONAL** display integration (bridge connected)
 - **Display Systems:** ✅ **OPERATIONAL** display rendering, ✅ **OPERATIONAL** live data integration
 - **Flight Management:** ✅ **OPERATIONAL** core functionality
@@ -210,7 +210,7 @@ The system uses a standardized addressing scheme based on `rtAddressConfig.xml`:
 - **BC ↔ Radar Systems:** ✅ **OPERATIONAL**
 - **BC ↔ Display Systems:** ✅ **OPERATIONAL**
 - **BC ↔ Flight Management:** ✅ **OPERATIONAL**
-- **Radar → Display Data Flow:** 🐛 **KNOWN ISSUES** (Weather radar only)
+- **Radar → Display Data Flow:** ✅ **OPERATIONAL** (all five radars, via the radar-to-display bridge)
 - **Cross-System Integration:** ✅ **OPERATIONAL** (cross-radar data fusion layer active)
 
 ## 1.4 System Requirements and Installation
@@ -223,7 +223,9 @@ The system uses a standardized addressing scheme based on `rtAddressConfig.xml`:
 - **Storage:** 500 GB available space
 - **Graphics:** DirectX 11 compatible graphics card
 - **Network:** Ethernet adapter for system integration
-- **Optional:** MIL-STD-1553B interface hardware for real hardware integration
+- **Optional:** MIL-STD-1553B interface hardware. The software bus adapter
+  layer provides the integration point; a vendor driver must be supplied
+  and registered (→ See File 11, MIL-STD-1553B Bus Adapter Layer)
 
 **Recommended System Requirements:**
 - **Processor:** Intel Core i9 or equivalent
@@ -240,7 +242,7 @@ The system uses a standardized addressing scheme based on `rtAddressConfig.xml`:
 - Windows Server 2019 or later (for server deployments)
 
 **Required Software Components:**
-- **Python 3.9 or later** ✅ **OPERATIONAL**
+- **Python 3.9 or later** ✅ **OPERATIONAL** — installer minimum. CI verifies 3.10–3.14; 3.9 is permitted but untested
 - **PyQt6 GUI framework** ✅ **OPERATIONAL**
 - **NumPy** for numerical computations ✅ **OPERATIONAL**
 - **SQLite** for database management ✅ **OPERATIONAL**
@@ -308,6 +310,14 @@ python install.py --force-reinstall # reinstall dependencies even if present
 - Startup verification procedures
 - Error handling during startup
 
+**`busAdapterConfig.xml`** - MIL-STD-1553B transport selection *(new in 1.2.0)*
+- Per-role transport: `socket` (default), `loopback`, or `hardware`
+- Optional peer host/port overrides for the socket transport
+- Safe to delete: both roles fall back to `socket` with standard ports
+- → See File 11, Section 11.1.1
+
+**`queryRateConfig.xml`** - Database query rate limits per system
+
 ## 1.5 Quick Start Guide
 
 ### System Startup ✅ **OPERATIONAL**
@@ -363,21 +373,33 @@ python Main.py
 3. Review active warnings or cautions
 4. Verify navigation data accuracy from FMS integration
 
-### Known Limitations 🐛 **KNOWN ISSUES**
+### Known Limitations
 
-**Weather Radar Display Integration:**
-- Weather radar data processing is fully operational
-- VIL and precipitation data generation works correctly
-- **Issue:** 1553B communication prevents data from reaching displays
-- **Workaround:** Monitor radar status through system logs
-- **Status:** Under active development
+**Resolved since earlier manual revisions (as of 1.2.0):**
 
-**Other Radar Display Integration:**
-- All radar systems (Targeting, SAR, TFR, AEWC) process data correctly
-- Radar mode changes and data generation are operational
-- **Issue:** Data routing to display systems not yet implemented
-- **Workaround:** Radar functionality available through direct system access
-- **Status:** Planned for next development phase
+- **Weather radar display integration** — previously documented as a 🐛
+  known issue in which 1553B communication prevented data from reaching the
+  displays. **Fixed and verified:** 104 bridge deliveries and 104 matching
+  display updates on a live 50-second run.
+- **Other radar display integration** (Targeting, SAR, TFR, AEWC) —
+  previously documented as "data routing to display systems not yet
+  implemented." **Implemented:** all five radars deliver through the
+  radar-to-display bridge, and every delivery function is covered by the
+  `test_bridge_and_coordinator` suite in CI.
+
+**Remaining limitations:**
+
+- **Real MIL-STD-1553B hardware** — the software bus adapter layer provides
+  the documented integration point, but no vendor driver ships with the
+  system; running against a physical interface card requires supplying one
+  (→ See File 11).
+- **Environmental Control System readings** are simulated placeholders
+  rather than a modelled thermal system.
+- **1553B network addressing** uses fixed loopback ports, appropriate for a
+  single-host simulation rather than a distributed one.
+- **Failure-injection scope** — scenario `system_failure` events drive the
+  LRU health registry and the displays that read it; they do not degrade the
+  underlying subsystem's physics.
 
 **Display System Limitations:**
 - Display rendering and user interface fully operational

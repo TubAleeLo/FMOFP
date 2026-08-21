@@ -1,9 +1,9 @@
 # Flight Management Operating Flight Program (FMOFP)
 ## User Manual
 
-**Version 1.1**
-**Document Date:** August 2026 (originally December 2024)
-**System Version:** FMOFP 1.1.0 (B20SS) — see `FMOFP/__init__.py` `__version__`
+**Version 1.2**
+**Document Date:** August 21, 2026 (originally December 2024)
+**System Version:** FMOFP 1.2.0 (B20SS) — see `FMOFP/__init__.py` `__version__`
 
 ---
 
@@ -16,6 +16,24 @@ This manual documents an in-development system. Features marked with status indi
 - 🐛 **KNOWN ISSUES:** Functional but with documented problems
 
 **WARNING:** This system is under active development. Operational capabilities and procedures may change between versions. Always verify system status before relying on documented features for critical operations.
+
+**What changed in 1.2.0 (August 21, 2026).** This revision reflects a build
+whose remaining open items were closed and re-verified by live execution:
+
+- **Weather radar → display integration is now OPERATIONAL.** Earlier
+  revisions of this manual described a 🐛 known issue in which 1553B
+  communication prevented radar data from reaching the displays. That
+  defect was fixed (the 1553B re-entry loop was removed and the
+  radar-to-display bridge became the canonical delivery path) and the
+  status markers throughout this manual have been corrected. Verified on a
+  live 50-second run: **104 bridge deliveries and 104 corresponding display
+  updates**, zero errors.
+- **Scenario `system_failure` events are functional**, not log-only — see
+  the Scenario Engine entry below.
+- **MIL-STD-1553B bus adapter layer** added, providing the documented
+  integration point for real interface hardware (→ See File 11).
+- **Clean boot log.** A normal run now completes with **zero ERROR lines**
+  from startup through graceful shutdown.
 
 ---
 
@@ -162,6 +180,7 @@ Each file is designed to be self-contained while providing cross-references to r
 
 **File: 11_Communication_Messaging.md** ......................... *Page 177*
 - 11.1 MIL-STD-1553B Implementation ✅ **OPERATIONAL** (all 12 RT addresses wired)
+- 11.1.1 Bus Adapter Layer ✅ **OPERATIONAL** *(new in 1.2.0 — socket / loopback / hardware transports)*
 - 11.2 Bus Controller Operations ✅ **OPERATIONAL**
 - 11.3 Remote Terminal Operations ✅ **OPERATIONAL**
 - 11.4 Message Routing and Validation ✅ **OPERATIONAL**
@@ -187,6 +206,24 @@ Each file is designed to be self-contained while providing cross-references to r
 - Supported event types: radar_contact, threat_launch, weather_cell, waypoint, phase_change, system_failure, message
 - Two included scenarios: `trainingScenario.xml` (16 events, ~10 min) and `failureScenario.xml` (16 events, cascading failures)
 - Usage: `engine = get_scenario_engine(); engine.load('trainingScenario.xml'); engine.start()`
+- **`system_failure` events are functional as of 1.2.0** — in earlier builds
+  they only wrote an instructor log line and changed no system state. They
+  now force a fault into the LRU health registry that persists until
+  cleared, so injected failures show up in EICAS-facing health aggregates.
+  Event parameters: `<system>` (LRU id such as `FCC-1`, a system key such as
+  `flight_control_computer`, a unique name fragment, or any free-form name —
+  unrecognised names register as scenario-declared entries), `<state>`
+  (`FAULT` default, `DEGRADED`, or `OFFLINE`), `<description>`, and
+  `<action>` (`clear` for one system, `clear_all` for every injected fault).
+
+**MIL-STD-1553B Bus Adapter Layer** ✅ **OPERATIONAL** *(new in 1.2.0)*
+- `MIL_STD_1553B/bus_adapter.py` — the transport abstraction the Bus
+  Controller and Remote Terminal send through, selected per role in
+  `busAdapterConfig.xml`
+- Three transports: `socket` (default, local simulation), `loopback`
+  (in-process, for tests), and `hardware` (real interface card — requires a
+  vendor driver, which does not ship with the system)
+- → See File 11 for the driver contract and configuration
 
 ### **Section 5: Operations and Reference**
 **File: 12_Operational_Procedures.md** .......................... ✅ **COMPLETE**

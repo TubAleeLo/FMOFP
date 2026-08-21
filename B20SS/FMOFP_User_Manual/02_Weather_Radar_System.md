@@ -6,15 +6,25 @@
 
 ## 2.1 Weather Radar Overview
 
-### System Status ✅ **OPERATIONAL** (Radar Processing) | 🐛 **KNOWN ISSUES** (Display Integration)
+### System Status ✅ **OPERATIONAL**
 
-The Weather Radar System provides comprehensive meteorological detection and analysis capabilities for flight safety and mission planning. The radar processing engine is fully operational and generates accurate weather data, but there are currently known issues with data routing to display systems via the MIL-STD-1553B communication protocol.
+The Weather Radar System provides comprehensive meteorological detection and analysis capabilities for flight safety and mission planning. The radar processing engine generates weather data and that data reaches the display systems.
+
+> **Corrected in manual v1.2 (August 21, 2026).** Earlier revisions of this
+> chapter described a 🐛 known issue in which 1553B communication prevented
+> weather data from reaching the displays. **That defect is fixed.** The
+> 1553B re-entry loop was removed and the radar-to-display bridge is now the
+> canonical delivery path. Verified on a live 50-second run: **104 bridge
+> deliveries and 104 corresponding display updates, zero errors.** All
+> bridge delivery functions (`push_precipitation_data`, `push_vil_data`,
+> `push_cells_data`, and the per-radar equivalents) are covered by the
+> `test_bridge_and_coordinator` suite in CI.
 
 **Current Operational Status:**
 - **Radar Processing:** ✅ **OPERATIONAL** - All weather detection algorithms functional
 - **Mode Switching:** ✅ **OPERATIONAL** - All operational modes available
 - **Data Generation:** ✅ **OPERATIONAL** - VIL, precipitation, and reflectivity data
-- **Display Integration:** 🐛 **KNOWN ISSUES** - 1553B communication prevents data display
+- **Display Integration:** ✅ **OPERATIONAL** - Data delivered to displays via the radar-to-display bridge
 - **System Health:** ✅ **OPERATIONAL** - Health monitoring and status reporting
 
 ### Technical Specifications
@@ -95,7 +105,7 @@ The Weather Radar System provides comprehensive meteorological detection and ana
 2. **Active Processing Indicators** - Visual confirmation of data processing
 3. **Data Generation Status** - "Generating weather data" messages in logs
 4. **System Health** - All indicators showing normal operation
-5. **Known Issue Note** - Reminder that data won't appear on displays due to 1553B issue
+5. **Display Update** - Weather data appears on the display within one refresh cycle
 
 ### Step-by-Step Mode Change Procedure
 
@@ -125,11 +135,14 @@ The Weather Radar System provides comprehensive meteorological detection and ana
 3. Monitor logs for "Generating weather data" messages [See Figure 2.4, Item 3]
 4. Verify system health indicators remain green [See Figure 2.4, Item 4]
 
-**Step 5: Understand Current Limitations**
+**Step 5: Verify End-to-End Delivery**
 1. Note that radar processing is working correctly
-2. Understand that data generation is operational
-3. Be aware that display integration has known 1553B issues [See Figure 2.4, Item 5]
-4. Use log monitoring to verify radar operation instead of displays
+2. Confirm that data generation is operational
+3. Confirm the data reaches the display [See Figure 2.4, Item 5]
+4. To verify from the logs, look for a matched pair per delivery cycle:
+   `[BRIDGE] Stored N precipitation items for request <id>` followed by
+   `[WEATHER] Mapping: N precip points pushed to display`. The counts should
+   agree. (The `[WEATHER] Mapping` line is logged at DEBUG level.)
 
 ### Weather Radar Data Flow Visualization
 
@@ -236,7 +249,7 @@ Procedure: Switching to Surveillance Mode
 
 ## 2.3 VIL (Vertically Integrated Liquid) Analysis
 
-### Overview ✅ **OPERATIONAL** (Processing) | 🐛 **KNOWN ISSUES** (Display)
+### Overview ✅ **OPERATIONAL**
 
 The VIL analysis system calculates the total liquid water content in a vertical column of atmosphere, providing critical information for storm intensity assessment and flight planning.
 
@@ -277,7 +290,7 @@ The VIL analysis system calculates the total liquid water content in a vertical 
 4. Generate unique request ID for tracking
 ```
 
-### VIL Message Flow ✅ **OPERATIONAL** (Generation) | 🐛 **KNOWN ISSUES** (Transmission)
+### VIL Message Flow ✅ **OPERATIONAL**
 
 **Current Implementation:**
 1. **VIL Request Received:** ✅ **OPERATIONAL**
@@ -285,15 +298,18 @@ The VIL analysis system calculates the total liquid water content in a vertical 
 3. **VIL Calculation:** ✅ **OPERATIONAL**
 4. **Data Object Generation:** ✅ **OPERATIONAL**
 5. **1553B Message Creation:** ✅ **OPERATIONAL**
-6. **Message Transmission:** 🐛 **KNOWN ISSUES**
-7. **Display Integration:** 🐛 **KNOWN ISSUES**
+6. **Message Transmission:** ✅ **OPERATIONAL**
+7. **Display Integration:** ✅ **OPERATIONAL**
 
-**Known Issue Details:**
+**Delivery Notes:**
 - VIL data generation completes successfully
 - Message formatting follows 1553B protocol
-- **Problem:** Communication layer prevents data from reaching displays
-- **Workaround:** Monitor VIL processing in system logs
-- **Status:** Under active development
+- Delivery to the display goes through `push_vil_data` on the
+  radar-to-display bridge, the same path precipitation and cell data use
+- **If no VIL appears:** confirm the radar is in a VIL-generating mode
+  first. In MAPPING mode the coordinator correctly reports
+  `No vil data available` (`get=1, store=0`) because none is produced —
+  that is expected behaviour, not a fault. → See Section 2.8, Issue 1
 
 ### VIL Interpretation Guidelines
 
@@ -311,7 +327,7 @@ The VIL analysis system calculates the total liquid water content in a vertical 
 
 ## 2.4 Precipitation Detection and Analysis
 
-### Overview ✅ **OPERATIONAL** (Processing) | 🐛 **KNOWN ISSUES** (Display)
+### Overview ✅ **OPERATIONAL**
 
 The precipitation detection system provides real-time analysis of precipitation intensity, type, and distribution using advanced reflectivity processing algorithms.
 
@@ -353,7 +369,7 @@ Where:
    - Calculate storm attributes
    - Predict storm evolution
 
-### Precipitation Data Flow ✅ **OPERATIONAL** (Generation) | 🐛 **KNOWN ISSUES** (Transmission)
+### Precipitation Data Flow ✅ **OPERATIONAL**
 
 **Message Processing Sequence:**
 ```
@@ -367,8 +383,8 @@ Where:
 **Current Status:**
 - **Data Generation:** ✅ **OPERATIONAL** - Precipitation objects created successfully
 - **Message Formatting:** ✅ **OPERATIONAL** - 1553B protocol compliance
-- **Data Transmission:** 🐛 **KNOWN ISSUES** - Communication layer problems
-- **Display Integration:** 🐛 **KNOWN ISSUES** - Data not reaching displays
+- **Data Transmission:** ✅ **OPERATIONAL** - Delivered via the radar-to-display bridge
+- **Display Integration:** ✅ **OPERATIONAL** - Data reaches the displays
 
 **Performance Metrics:**
 - **Processing Time:** Typically 0.1-0.5 seconds per request
@@ -392,7 +408,7 @@ Where:
 
 ## 2.5 Storm Cell Tracking
 
-### Overview ✅ **OPERATIONAL** (Processing) | 🐛 **KNOWN ISSUES** (Display)
+### Overview ✅ **OPERATIONAL**
 
 The storm cell tracking system automatically identifies, tracks, and predicts the movement of individual storm cells, providing critical information for flight planning and weather avoidance.
 
@@ -562,29 +578,44 @@ Wind shear detection is fully operational via `WindShearProcessor` (`weather_pro
 
 ### Common Issues and Solutions
 
-#### Issue 1: Weather Radar Data Not Displaying 🐛 **KNOWN ISSUES**
+#### Issue 1: Weather Radar Data Not Displaying ✅ **RESOLVED**
+
+> **This was the long-standing 🐛 known issue in earlier manual revisions.
+> It is fixed as of FMOFP 1.2.0.** The 1553B re-entry loop that prevented
+> delivery was removed and the radar-to-display bridge became the canonical
+> path. Retained here as a diagnostic reference, because the *symptoms* can
+> still be produced by ordinary operating conditions (see below).
 
 **Symptoms:**
 - Radar mode changes successfully
 - System logs show data generation
 - No weather data appears on displays
-- VIL and precipitation processing completes normally
 
-**Root Cause:**
-- MIL-STD-1553B communication layer prevents data transmission to displays
-- Message routing configuration issues
-- Display system not receiving radar data messages
+**If you see this on FMOFP 1.2.0 or later, it is not the old defect.** Work
+through these causes in order:
 
-**Current Workaround:**
-1. Monitor radar processing in system logs:
+1. **The radar is in a mode that does not produce the data type you are
+   looking for.** This is by far the most common explanation. A radar in
+   MAPPING mode produces precipitation data and no VIL data; the log will
+   say `[RADAR_DATA_COORD] No vil data available` with `get=1, store=0`.
+   Switch to a mode that generates the data type you expect.
+2. **No data has been generated yet.** Delivery is request-driven, not
+   free-running. Confirm generation first, then delivery.
+3. **The delivery pair is missing.** A healthy cycle logs both of:
    ```
-   tail -f FMOFP/logs/DEBUG_*.log | grep WEATHER
+   [BRIDGE] Stored N precipitation items for request <id>
+   [WEATHER] Mapping: N precip points pushed to display     (DEBUG level)
    ```
-2. Verify mode changes in radar status
-3. Confirm data generation completion messages
-4. Use system health monitoring for radar status
+   If the `[BRIDGE]` line appears without the `[WEATHER] Mapping` line, the
+   problem is between the bridge and the display; if neither appears, the
+   problem is upstream in generation.
 
-**Resolution Status:** Under active development
+**Verification command:**
+```
+grep -E "\[BRIDGE\] Stored|pushed to display" FMOFP/logs/DEBUG_*.log | tail -20
+```
+The two counts should match. On a healthy 50-second run expect on the order
+of 100 matched pairs while the weather radar is actively generating.
 
 #### Issue 2: Mode Change Delays
 
