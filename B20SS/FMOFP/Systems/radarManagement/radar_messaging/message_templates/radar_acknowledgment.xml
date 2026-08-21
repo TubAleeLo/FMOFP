@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<message>
+    <!-- Command Acknowledgment Template -->
+    <command_acknowledgment>
+        <message_header>{message_header}</message_header>
+        <sending_system>{sending_system}</sending_system>
+        <destination>{destination}</destination>
+        <message_type>{message_type}</message_type>
+        <type>command_acknowledgment</type>
+        <command>{command}</command>
+        <status>{status}</status>
+        <timestamp>{timestamp}</timestamp>
+    </command_acknowledgment>
+</message>

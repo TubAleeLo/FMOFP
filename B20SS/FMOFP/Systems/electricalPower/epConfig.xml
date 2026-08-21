@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<electricalPower>
+  <generators>
+    <generator>
+      <id>1</id>
+      <description>Main engine integrated generator 1</description>
+      <capacity>150</capacity> <!-- kVA -->
+    </generator>
+    <generator>
+      <id>2</id>
+      <description>Main engine integrated generator 2</description>
+      <capacity>150</capacity>
+    </generator>
+    <generator>
+      <id>3</id>
+      <description>Auxiliary Power Unit generator</description>
+      <capacity>90</capacity>
+    </generator>
+  </generators>
+  
+  <distribution>
+    <bus>
+      <id>1</id>
+      <description>Primary power distribution bus</description>
+      <supplyOrder>
+        <generator>1</generator>
+        <generator>2</generator>
+        <generator>3</generator>
+        <battery>mainBattery</battery>
+      </supplyOrder>
+    </bus>
+    <bus>
+      <id>2</id>
+      <description>Secondary power distribution bus</description>
+      <supplyOrder>
+        <generator>1</generator>
+        <generator>2</generator>
+        <generator>3</generator>
+        <battery>backupBattery</battery>
+      </supplyOrder>
+    </bus>
+  </distribution>
+  
+  <batteries>
+    <battery>
+      <id>mainBattery</id>
+      <description>Main aircraft battery</description>
+      <capacity>40</capacity> <!-- Amp-hours -->
+    </battery>
+    <battery>
+      <id>backupBattery</id>
+      <description>Backup aircraft battery</description>
+      <capacity>30</capacity>
+    </battery>
+  </batteries>
+</electricalPower>

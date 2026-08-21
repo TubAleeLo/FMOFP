@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<softwareConfiguration>
+  <components>
+    <component>
+      <name>fltControlComp</name>
+      <description>Flight Control Computer</description>
+      <currentVersion>5.2.1</currentVersion>
+    </component>
+    <component>
+      <name>missionComputer</name>
+      <description>Mission Computer</description>
+      <currentVersion>3.8</currentVersion>
+    </component>
+    <component>
+      <name>commsSoftware</name>
+      <description>Communications Software</description>
+      <currentVersion>2.5</currentVersion>
+    </component>
+  </components>
+  
+  <dataLoads>
+    <load>
+      <id>20190601</id>
+      <description>Weapon Systems OFP Baseline</description>
+      <date>2019-06-01</date>  
+      <status>certified</status>
+      <loadSpecs>
+        <component>fltControlComp</component><version>5.2</version>
+        <component>missionComputer</component><version>3.8</version>
+        <component>commsSoftware</component><version>2.5</version>
+      </loadSpecs>
+    </load>
+    
+    <load>
+      <id>20191015</id>
+      <description>Navigation Update</description>
+      <date>2019-10-15</date>
+      <status>certified</status>
+      <loadSpecs>
+        <component>fltControlComp</component><version>5.2.1</version>
+      </loadSpecs> 
+    </load>
+  </dataLoads>
+  
+  <updateSequence>
+    <step>Verify data load integrity</step>
+    <step>Load update data</step>
+    <step>Run compatibility checks</step>  
+    <step>Apply configuration updates</step>
+    <step>Restart system components</step>
+  </updateSequence>
+   
+</softwareConfiguration>

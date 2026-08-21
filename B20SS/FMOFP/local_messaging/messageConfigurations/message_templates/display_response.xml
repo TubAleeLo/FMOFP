@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message_templates>
+    <template id="display_shown">
+        <name>Display Shown Response</name>
+        <description>Response indicating display show command result</description>
+        <format>
+            <field name="response_type" start="0" length="8">
+                <description>Response identifier</description>
+                <value>00000001</value>
+            </field>
+            <field name="success" start="8" length="8">
+                <description>Success flag</description>
+                <values>
+                    <value id="1">Success</value>
+                    <value id="0">Failure</value>
+                </values>
+            </field>
+            <field name="error" start="16" length="8">
+                <description>Error indicator/padding</description>
+                <values>
+                    <value id="0">No error</value>
+                    <value id="255">Error occurred</value>
+                </values>
+            </field>
+        </format>
+    </template>
+
+    <template id="mode_set">
+        <name>Display Mode Set Response</name>
+        <description>Response indicating mode set command result</description>
+        <format>
+            <field name="response_type" start="0" length="8">
+                <description>Response identifier</description>
+                <value>00000010</value>
+            </field>
+            <field name="success" start="8" length="8">
+                <description>Success flag</description>
+                <values>
+                    <value id="1">Success</value>
+                    <value id="0">Failure</value>
+                </values>
+            </field>
+            <field name="error" start="16" length="8">
+                <description>Error indicator/padding</description>
+                <values>
+                    <value id="0">No error</value>
+                    <value id="255">Error occurred</value>
+                </values>
+            </field>
+        </format>
+    </template>
+
+    <template id="error">
+        <name>Display Error Response</name>
+        <description>Generic error response for display commands</description>
+        <format>
+            <field name="response_type" start="0" length="8">
+                <description>Response identifier</description>
+                <value>11111111</value>
+            </field>
+            <field name="error_code" start="8" length="8">
+                <description>Error code</description>
+                <values>
+                    <value id="1">Invalid display type</value>
+                    <value id="2">Invalid mode</value>
+                    <value id="3">Display not available</value>
+                    <value id="4">Operation timeout</value>
+                    <value id="255">Unknown error</value>
+                </values>
+            </field>
+            <field name="error_data" start="16" length="8">
+                <description>Additional error data</description>
+            </field>
+        </format>
+    </template>
+</message_templates>

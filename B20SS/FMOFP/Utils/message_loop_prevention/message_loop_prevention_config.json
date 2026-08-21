@@ -1,0 +1,45 @@
+{
+  "enabled": true,
+  "log_level": "info",
+  "max_tracked_messages": 1000,
+  "expiration_time": 60.0,
+  "services": {
+    "vil_handler": {
+      "enabled": true,
+      "max_tracked_messages": 500,
+      "expiration_time": 30.0
+    },
+    "vil_response_service": {
+      "enabled": true,
+      "max_tracked_messages": 500,
+      "expiration_time": 30.0
+    },
+    "precipitation_handler": {
+      "enabled": true,
+      "max_tracked_messages": 500,
+      "expiration_time": 30.0
+    },
+    "unified_router": {
+      "enabled": true,
+      "max_tracked_messages": 1000,
+      "expiration_time": 60.0
+    }
+  },
+  "categories": {
+    "vil": {
+      "enabled": true,
+      "max_tracked_messages": 500,
+      "expiration_time": 30.0
+    },
+    "precipitation": {
+      "enabled": true,
+      "max_tracked_messages": 500,
+      "expiration_time": 30.0
+    },
+    "mode_change": {
+      "enabled": true,
+      "max_tracked_messages": 200,
+      "expiration_time": 20.0
+    }
+  }
+}

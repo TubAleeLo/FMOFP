@@ -1,0 +1,74 @@
+image: python:3.11-slim
+
+# FMOFP Bitbucket Pipelines CI
+# Mirrors .github/workflows/ci.yml — keep the two in sync when editing either.
+#
+# Reconciled August 2026 (production-readiness follow-up): this file had
+# drifted from the GitHub workflow it claims to mirror —
+#   * it hardcoded PyQt6==6.7.* while requirements.txt (the declared single
+#     source of truth) pins 6.8.1, so Bitbucket runs tested a different Qt
+#     than the one that ships;
+#   * it omitted scipy and click entirely — the two dependencies whose
+#     absence was already found to silently break weather-radar analysis
+#     and to block the whole app from importing, respectively;
+#   * its lint step still swallowed its own exit code with `|| true` and
+#     used the broader F8 selector, both of which the GitHub workflow had
+#     already fixed.
+# All steps now install from B20SS/requirements.txt, run the boot smoke
+# test first (see ci_test_boot_smoke.py for the Aug 2026 boot-deadlock
+# incident that motivates it), then the full aggregating runner
+# (run_all_tests.py), matching the GitHub workflow exactly.
+
+definitions:
+  yaml-anchors:
+    - &test-script
+        - apt-get update -qq
+        - apt-get install -y --no-install-recommends
+            libgl1 libglib2.0-0 libdbus-1-3 libegl1
+            libxkbcommon0 libfontconfig1 libfreetype6 xvfb
+        - pip install --upgrade pip
+        - pip install -r B20SS/requirements.txt
+        - export PYTHONPATH="$PYTHONPATH:$(pwd)/B20SS"
+        - export QT_QPA_PLATFORM=offscreen
+        - cd B20SS && python FMOFP/Tests/ci_test_boot_smoke.py
+        - python FMOFP/Tests/run_all_tests.py
+
+pipelines:
+  default:
+    - parallel:
+        - step:
+            name: Test Suite (Python 3.10)
+            image: python:3.10-slim
+            script: *test-script
+
+        - step:
+            name: Test Suite (Python 3.11)
+            image: python:3.11-slim
+            script: *test-script
+
+        - step:
+            name: Test Suite (Python 3.12)
+            image: python:3.12-slim
+            script: *test-script
+
+        - step:
+            name: Test Suite (Python 3.13)
+            image: python:3.13-slim
+            script: *test-script
+
+        - step:
+            name: Test Suite (Python 3.14)
+            image: python:3.14-slim
+            script: *test-script
+
+        - step:
+            name: Lint (ruff)
+            image: python:3.11-slim
+            script:
+              # Matches .github/workflows/ci.yml: F821-focused selector,
+              # and NO `|| true` — a lint job that can't fail gates nothing.
+              - pip install ruff
+              - ruff check B20SS/FMOFP
+                  --select E9,F821,F7,F6
+                  --ignore F811
+                  --exclude B20SS/FMOFP/Tests

@@ -1,0 +1,44 @@
+# FMOFP dependency manifest.
+#
+# The PyQt6 stack is pinned to match the wheels bundled in B20SS/PyQt6/ and
+# B20SS/python packages/ for offline/Windows installs, so an online CI/PyPI
+# install and an offline bundled-wheel install can no longer drift apart
+# (see production readiness punch list, item 1: version pin mismatch).
+#
+# Both .github/workflows/ci.yml and B20SS/install.py read pinned versions
+# from this file. If you need to bump PyQt6, update the bundled wheels in
+# B20SS/PyQt6/ and B20SS/python packages/ at the same time.
+PyQt6==6.8.1
+PyQt6-Qt6==6.8.2
+PyQt6-sip==13.10.0
+numpy>=1.26,<3.0
+qasync>=0.27
+
+# click: used by Utils/debug/userCLI.py for the @click.group() CLI command
+# structure. Missing from this file entirely until now -- confirmed live
+# (production readiness re-analysis, August 2026) that userCLI.py's
+# top-level 'import click' is reached unconditionally, since
+# core/system_manager.py imports get_user_cli from it at module load time
+# and instantiates it as part of the live boot sequence
+# (UserCLI_Control/Input/Processing/Output). Every boot test this session
+# passed silently only because this sandbox happens to already have click
+# installed (as a transitive dependency of some other preinstalled tool);
+# a genuinely clean install with nothing else pulling click in would fail
+# to import core/system_manager.py at all, before doing anything --
+# the same class of gap as the scipy entry below, just one level more
+# severe (this one blocks the entire application from starting, not just
+# one feature). Also added to install.py's REQUIRED_PACKAGES.
+click>=8.0,<9.0
+
+# scipy: used by stormCellTracking.py, precipitation_analysis.py,
+# weather_processor.py, and sar_processor.py (ndimage functions for
+# storm-cell segmentation, precipitation analysis, and turbulence
+# detection). Was previously missing from this file entirely --
+# confirmed live that this silently broke those features on every
+# clean install ("Error analyzing precipitation: No module named
+# 'scipy'", ~40 occurrences per 15s of steady-state weather-radar
+# operation) since nothing else in the dependency chain pulls it in.
+# Also added to install.py's REQUIRED_PACKAGES so the installer
+# actually attempts to install it (that list is separate from this
+# file and doesn't derive from it automatically).
+scipy>=1.11,<2.0

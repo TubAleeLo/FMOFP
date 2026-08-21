@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<builtInTests>
+  <selfTests>
+    <test>
+      <id>POST-FCC</id>
+      <description>Flight Control Computer Power-On Self Test</description>
+      <system>flightControlComputer</system>
+      <components>
+        <component>cpu</component> 
+        <component>memory</component>
+        <component>databus</component>
+      </components>
+    </test>
+        
+    <test>
+      <id>POST-NAV</id>
+      <description>Navigation System Power-On Self Test</description> 
+      <system>navigationSystem</system>
+      <components>
+        <component>cpu</component>
+        <component>sensors</component> 
+        <component>gpsReceiver</component>
+      </components>
+    </test>
+  </selfTests>
+  
+  <periodicTests>
+    <test>
+      <id>BIT-AVIONICS</id>
+      <description>Avionics Systems BIT</description>
+      <systems>
+        <system>flightControlComputer</system>
+        <system>missionComputer</system>
+      </systems>
+      <interval>90</interval> <!-- mins -->
+    </test> 
+            
+    <test>    
+      <id>BIT-COMM</id>
+      <description>Communications System BIT</description>  
+      <systems>
+        <system>datalink</system>
+        <system>satcom</system>
+        <system>radios</system>
+      </systems> 
+      <interval>60</interval>
+    </test>
+  </periodicTests>
+  
+  <interfaceTests>
+    <test>
+      <id>IFT-FLT-NAV</id> 
+      <description>Flight Control to Navigation Interface Test</description>
+      <system1>flightControlComputer</system1>
+      <system2>navigationSystem</system2>
+      <components>
+        <component>1553Bus</component>
+      </components>
+    </test>
+        
+    <test>
+      <id>IFT-WPN-FCR</id>
+      <description>Weapon to Fire Control Radar Interface Test</description>
+      <system1>weaponSystem</system1> 
+      <system2>fireControlRadar</system2>
+      <components> 
+        <component>highSpeedDataBus</component>
+      </components>
+    </test>
+  </interfaceTests>
+  
+</builtInTests>

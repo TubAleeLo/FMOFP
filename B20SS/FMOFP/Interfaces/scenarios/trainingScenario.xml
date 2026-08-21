@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scenario name="Basic Training Scenario" version="1.0">
+  <!--
+    B20SS Basic Training Scenario
+    Duration: ~10 minutes
+    Purpose:  Familiarise crew with radar, RWR, and mission systems
+  -->
+
+  <!-- T+0: Instructor briefing -->
+  <event id="MSG-001" type="message" time_s="0">
+    <text>Training scenario started. Proceed to first waypoint.</text>
+  </event>
+
+  <!-- T+10s: Add ingress waypoint -->
+  <event id="WP-001" type="waypoint" time_s="10">
+    <lat>35.60</lat>
+    <lon>-97.20</lon>
+    <alt_ft>15000</alt_ft>
+    <name>INGRESS</name>
+  </event>
+
+  <!-- T+30s: Advance to ingress phase -->
+  <event id="PH-001" type="phase_change" time_s="30">
+    <phase>INGRESS</phase>
+  </event>
+
+  <!-- T+60s: Introduce weather cell -->
+  <event id="WX-001" type="weather_cell" time_s="60">
+    <x>20.0</x>
+    <y>30.0</y>
+    <intensity>0.6</intensity>
+    <reflectivity>42</reflectivity>
+    <size>8.0</size>
+    <category>MODERATE</category>
+  </event>
+
+  <!-- T+90s: First radar contact (unknown) -->
+  <event id="RC-001" type="radar_contact" time_s="90">
+    <track_id>T01</track_id>
+    <x>80.0</x>
+    <y>60.0</y>
+    <alt_ft>25000</alt_ft>
+    <vx>-5.0</vx>
+    <vy>-3.0</vy>
+    <classification>UNKNOWN</classification>
+    <identity>UNKNOWN</identity>
+  </event>
+
+  <!-- T+120s: Instructor prompt -->
+  <event id="MSG-002" type="message" time_s="120">
+    <text>Unknown contact bearing 045. Interrogate and classify.</text>
+  </event>
+
+  <!-- T+150s: Contact classified hostile -->
+  <event id="RC-002" type="radar_contact" time_s="150">
+    <track_id>T01</track_id>
+    <x>65.0</x>
+    <y>50.0</y>
+    <alt_ft>24000</alt_ft>
+    <vx>-5.0</vx>
+    <vy>-3.0</vy>
+    <classification>FIGHTER</classification>
+    <identity>HOSTILE</identity>
+  </event>
+
+  <!-- T+180s: SAM threat activates — triggers RWR -->
+  <event id="TH-001" type="threat_launch" time_s="180">
+    <name>SAM-SITE-1</name>
+    <bearing_deg>125</bearing_deg>
+    <range_nm>35</range_nm>
+    <band>X</band>
+    <threat_type>SAM</threat_type>
+    <priority>1</priority>
+  </event>
+
+  <!-- T+200s: Instructor prompt -->
+  <event id="MSG-003" type="message" time_s="200">
+    <text>SAM radar lock detected. Deploy countermeasures and manoeuvre.</text>
+  </event>
+
+  <!-- T+240s: Objective waypoint -->
+  <event id="WP-002" type="waypoint" time_s="240">
+    <lat>35.80</lat>
+    <lon>-97.40</lon>
+    <alt_ft>10000</alt_ft>
+    <name>OBJECTIVE</name>
+  </event>
+
+  <!-- T+260s: Advance to objective phase -->
+  <event id="PH-002" type="phase_change" time_s="260">
+    <phase>OBJECTIVE</phase>
+  </event>
+
+  <!-- T+300s: Second weather cell -->
+  <event id="WX-002" type="weather_cell" time_s="300">
+    <x>-10.0</x>
+    <y>40.0</y>
+    <intensity>0.85</intensity>
+    <reflectivity>55</reflectivity>
+    <size>12.0</size>
+    <category>SEVERE</category>
+  </event>
+
+  <!-- T+360s: Egress phase -->
+  <event id="PH-003" type="phase_change" time_s="360">
+    <phase>EGRESS</phase>
+  </event>
+
+  <!-- T+400s: Egress waypoint -->
+  <event id="WP-003" type="waypoint" time_s="400">
+    <lat>35.40</lat>
+    <lon>-96.80</lon>
+    <alt_ft>20000</alt_ft>
+    <name>EGRESS</name>
+  </event>
+
+  <!-- T+500s: Scenario complete -->
+  <event id="MSG-004" type="message" time_s="500">
+    <text>Training scenario complete. RTB.</text>
+  </event>
+
+  <event id="PH-004" type="phase_change" time_s="510">
+    <phase>COMPLETE</phase>
+  </event>
+
+</scenario>

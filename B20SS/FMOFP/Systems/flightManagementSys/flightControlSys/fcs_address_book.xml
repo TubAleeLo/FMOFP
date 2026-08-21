@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<address_book>
+    <!-- 
+        Flight Control System address book for MIL-STD-1553B message routing.
+        This file defines the RT (Remote Terminal) addresses and subaddresses 
+        used for FCS communications.
+    -->
+    
+    <system id="flight_control_system" rt_address="3" description="Flight Control System">
+        <subsystem id="flight_control_system" subaddress="1" description="Main Flight Control System"/>
+        <subsystem id="attitude_calculator" subaddress="2" description="Attitude Calculator"/>
+        <subsystem id="control_surface_manager" subaddress="3" description="Control Surface Manager"/>
+        <subsystem id="flight_dynamics_processor" subaddress="4" description="Flight Dynamics Processor"/>
+    </system>
+</address_book>

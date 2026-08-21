@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Mirror of command_registry.xml in FMOFP\Msg_handler\messageConfigurations\command_registry.xml
+
+Command Registry and Mapping related files:
+command_registry.xml     
+RT_command_map.py
+command_word_map.py
+-->
+
+
+<commands>
+    <!-- Weather Radar Commands -->
+    <command>
+        <name>weather_radarDataResponse</name>
+        <value>0x9003</value>
+    </command>
+    <command>
+        <name>weather_radarStatusRequest</name>
+        <value>0x9004</value>
+    </command>
+    <command>
+        <name>weather_radarModeChangeRequest</name>
+        <value>0x4845</value>
+    </command>
+    <command>
+        <name>weather_radarDataRequest</name>
+        <value>0x9006</value>
+    </command>
+    <!-- Weather Radar Data Type Commands -->
+    <command>
+        <name>weather_radarEchoTopDataRequest</name>
+        <value>0x9007</value>
+    </command>
+    <command>
+        <name>weather_radarEchoTopDataResponse</name>
+        <value>0x9008</value>
+    </command>
+    <command>
+        <name>weather_radarShearDataRequest</name>
+        <value>0x2009</value>
+    </command>
+    <command>
+        <name>weather_radarShearDataResponse</name>
+        <value>0x200A</value>
+    </command>
+    <command>
+        <name>weather_radarTurbulenceDataRequest</name>
+        <value>0x200B</value>
+    </command>
+    <command>
+        <name>weather_radarTurbulenceDataResponse</name>
+        <value>0x200C</value>
+    </command>
+    <command>
+        <name>weather_radarVILDataRequest</name>
+        <value>0x200D</value>
+    </command>
+    <command>
+        <name>weather_radarVILDataResponse</name>
+        <value>0x200E</value>
+    </command>
+    <command>
+        <name>weather_radarPrecipitationDataRequest</name>
+        <value>0x200F</value>
+        <word_count>2</word_count>
+    </command>
+    <command>
+        <name>weather_radarPrecipitationDataResponse</name>
+        <value>0x2010</value>
+        <word_count>2</word_count>
+    </command>
+
+    <!-- TFR Radar Commands -->
+    <command>
+        <name>tfr_radarElevationDataRequest</name>
+        <value>0x3001</value>
+    </command>
+    <command>
+        <name>tfr_radarElevationDataResponse</name>
+        <value>0x3002</value>
+    </command>
+    <command>
+        <name>tfr_radarModeChangeRequest</name>
+        <value>0x3003</value>
+    </command>
+    <command>
+        <name>tfr_radarModeChangeResponse</name>
+        <value>0x3004</value>
+    </command>
+
+    <!-- SAR Radar Commands -->
+    <command>
+        <name>sar_radarImageryDataRequest</name>
+        <value>0x4001</value>
+    </command>
+    <command>
+        <name>sar_radarImageryDataResponse</name>
+        <value>0x4002</value>
+    </command>
+    <command>
+        <name>sar_radarModeChangeRequest</name>
+        <value>0x4003</value>
+    </command>
+    <command>
+        <name>sar_radarModeChangeResponse</name>
+        <value>0x4004</value>
+    </command>
+
+    <!-- Targeting Radar Commands -->
+    <command>
+        <name>targeting_radarTrackDataRequest</name>
+        <value>0x5001</value>
+    </command>
+    <command>
+        <name>targeting_radarTrackDataResponse</name>
+        <value>0x5002</value>
+    </command>
+    <command>
+        <name>targeting_radarModeChangeRequest</name>
+        <value>0x5003</value>
+    </command>
+    <command>
+        <name>targeting_radarModeChangeResponse</name>
+        <value>0x5004</value>
+    </command>
+
+    <!-- AEWC Radar Commands -->
+    <command>
+        <name>aewc_radarTrackDataRequest</name>
+        <value>0x6001</value>
+    </command>
+    <command>
+        <name>aewc_radarTrackDataResponse</name>
+        <value>0x6002</value>
+    </command>
+    <command>
+        <name>aewc_radarModeChangeRequest</name>
+        <value>0x6003</value>
+    </command>
+    <command>
+        <name>aewc_radarModeChangeResponse</name>
+        <value>0x6004</value>
+    </command>
+
+    <!-- Display System Commands -->
+    <command>
+        <name>display_show_request</name>
+        <value>0x7001</value>
+    </command>
+    <command>
+        <name>display_show_response</name>
+        <value>0x7002</value>
+    </command>
+    <command>
+        <name>display_mode_request</name>
+        <value>0xB002</value>
+    </command>
+    <command>
+        <name>display_mode_response</name>
+        <value>0xB102</value>
+    </command>
+    <command>
+        <name>display_data_request</name>
+        <value>0x7005</value>
+    </command>
+    <command>
+        <name>display_data_response</name>
+        <value>0x7006</value>
+    </command>
+    <command>
+        <name>display_status_request</name>
+        <value>0x7007</value>
+    </command>
+    <command>
+        <name>display_status_response</name>
+        <value>0x7008</value>
+    </command>
+
+    <!-- Mode Code Commands -->
+    <command>
+        <name>DynamicBusControl</name>
+        <value>0x091F</value>
+    </command>
+    <command>
+        <name>Synchronize</name>
+        <value>0x091F</value>
+    </command>
+    <command>
+        <name>TransmitStatusWord</name>
+        <value>0x091F</value>
+    </command>
+    <command>
+        <name>InitiateSelfTest</name>
+        <value>0x091F</value>
+    </command>
+    <command>
+        <name>TransmitterShutdown</name>
+        <value>0x091F</value>
+    </command>
+    <command>
+        <name>OverrideTransmitterShutdown</name>
+        <value>0x091F</value>
+    </command>
+    <command>
+        <name>InhibitTerminalFlag</name>
+        <value>0x091F</value>
+    </command>
+    <command>
+        <name>OverrideInhibitTerminalFlag</name>
+        <value>0x091F</value>
+    </command>
+</commands>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fuelSystems>
+  <tanks>
+    <tank>
+      <id>1</id>
+      <description>Main wing tank 1</description>  
+      <capacity>9825</capacity> <!-- gallons -->
+    </tank>
+    <tank>
+      <id>2</id>
+      <description>Main wing tank 2</description>
+      <capacity>9825</capacity>
+    </tank>
+    <tank>
+      <id>3</id>
+      <description>Forward fuselage tank</description>
+      <capacity>2025</capacity>
+    </tank>
+    <tank>
+      <id>4</id>  
+      <description>Aft fuselage tank</description>
+      <capacity>2025</capacity>
+    </tank>
+  </tanks>
+  
+  <refueling>
+    <port>
+      <id>1</id>
+      <description>Wing refueling port 1</description>
+      <tanks>1</tanks>
+    </port>
+    <port>
+      <id>2</id>
+      <description>Wing refueling port 2</description>
+      <tanks>2</tanks>
+    </port>  
+  </refueling>
+  
+  <feedLines>
+    <line>  
+      <fromTank>1</fromTank>
+      <toEngine>1</toEngine>
+    </line>
+    <line>
+      <fromTank>2</fromTank>
+      <toEngine>2</toEngine>
+    </line>
+  </feedLines>
+  
+</fuelSystems>

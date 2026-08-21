@@ -1,0 +1,27 @@
+<!-- Message Rate Configuration -->
+<message_rates>
+  <status_msg>
+    <rate_hz>1</rate_hz>
+    <description>Rate for sending general status messages</description>
+  </status_msg>
+  
+  <alert_msg>
+    <rate_hz>5</rate_hz>
+    <description>Rate for sending alert/warning messages</description>
+  </alert_msg>
+  
+  <data_msg>
+    <rate_hz>10</rate_hz>
+    <description>Rate for sending data messages (sensor data, radar data, etc.)</description>
+  </data_msg>
+  
+  <command_msg>
+    <rate_hz>2</rate_hz>
+    <description>Rate for sending command messages (system configuration, mode changes, etc.)</description>
+  </command_msg>
+  
+  <log_msg>
+    <rate_hz>0.5</rate_hz>
+    <description>Rate for writing log messages to the database</description>
+  </log_msg>
+</message_rates>

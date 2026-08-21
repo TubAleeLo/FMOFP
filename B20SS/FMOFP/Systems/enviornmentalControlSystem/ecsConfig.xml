@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<environmental-control-system>
+    <temperature>
+        <default-target>22.0</default-target>
+        <min-allowed>18.0</min-allowed>
+        <max-allowed>26.0</max-allowed>
+    </temperature>
+    <pressure>
+        <default-target>101.3</default-target>
+        <min-allowed>95.0</min-allowed>
+        <max-allowed>105.0</max-allowed>
+    </pressure>
+    <humidity>
+        <default-target>50.0</default-target>
+        <min-allowed>30.0</min-allowed>
+        <max-allowed>70.0</max-allowed>
+    </humidity>
+    <oxygen>
+        <default-level>21.0</default-level>
+        <min-allowed>19.5</min-allowed>
+        <max-allowed>23.5</max-allowed>
+        <default-generation-rate>1.0</default-generation-rate>
+    </oxygen>
+    <air-quality>
+        <min-acceptable>95.0</min-acceptable>
+    </air-quality>
+</environmental-control-system>

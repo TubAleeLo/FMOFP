@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flightDataMonitoring>
+  <recorders>
+    <recorder>
+      <id>1</id>
+      <description>Flight Data Recorder (FDR)</description>
+      <type>solid-state</type>
+      <parameters>
+        <parameter>
+          <name>UTC Time</name>
+          <units>sec</units>
+        </parameter>
+        <parameter>
+          <name>Altitude</name>
+          <units>ft</units>  
+        </parameter>
+        <parameter>
+          <name>Airspeed</name>
+          <units>kts</units>
+        </parameter>
+        <!-- Other parameters -->
+      </parameters>
+    </recorder>
+    
+    <recorder>
+      <id>2</id>
+      <description>Cockpit Voice Recorder (CVR)</description>
+      <type>solid-state</type>
+      <parameters>
+        <parameter>
+          <name>Audio</name> 
+          <units>PCM</units>
+        </parameter>
+      </parameters>
+    </recorder>
+  </recorders>
+  
+  <storage>
+    <memoryCards>
+      <card>
+        <slot>1</slot>
+        <description>FDR PCMCIA Card</description>
+        <capacity>16</capacity> <!-- GB -->  
+        <contents>fdr</contents> 
+      </card>
+      <card>
+        <slot>2</slot>
+        <description>CVR PCMCIA Card</description>
+        <capacity>8</capacity>
+        <contents>cvr</contents>
+      </card>
+    </memoryCards>
+  </storage>
+</flightDataMonitoring>

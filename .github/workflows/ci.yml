@@ -1,0 +1,121 @@
+name: FMOFP CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test Suite (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libgl1 \
+            libglib2.0-0 \
+            libdbus-1-3 \
+            libegl1 \
+            libxkbcommon0 \
+            libfontconfig1 \
+            libfreetype6 \
+            xvfb
+
+      - name: Install Python dependencies
+        # Install from B20SS/requirements.txt instead of hardcoding versions
+        # here. This file previously hardcoded PyQt6==6.7.* / PyQt6-Qt6==6.7.*,
+        # which drifted from the PyQt6-6.8.1 / PyQt6_Qt6-6.8.2 wheels actually
+        # bundled in B20SS/PyQt6/ and B20SS/python packages/ for offline
+        # installs (see production readiness punch list, item 1). CI was
+        # testing against a different Qt6 version than what ships to users.
+        # requirements.txt is now the single source of truth that both CI
+        # and install.py read from, so they can no longer drift apart.
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r B20SS/requirements.txt
+
+      - name: Add B20SS to PYTHONPATH
+        run: echo "PYTHONPATH=$PYTHONPATH:${{ github.workspace }}/B20SS" >> $GITHUB_ENV
+
+      # The boot smoke test runs FIRST and as its own step so that a boot
+      # regression is unmissable in the CI UI. Added August 2026 after
+      # commit 8f37be6 shipped a SystemStateManager __new__/_initialize
+      # self-deadlock that made `import FMOFP.core.system_manager` (and
+      # therefore Main.py) hang forever — while CI stayed green, because
+      # no CI test exercised the boot path.
+      - name: Boot smoke test (import real entry path under watchdog)
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          cd B20SS
+          python FMOFP/Tests/ci_test_boot_smoke.py
+
+      # Single aggregating runner replaces the previous per-suite steps
+      # (which covered only 7 of the repo's test files). Runs every
+      # standalone-safe suite, subprocess-isolated with per-suite watchdog
+      # timeouts, and fails the job if ANY suite fails, times out, or
+      # crashes. See run_all_tests.py's docstring for which suites are
+      # excluded and why (CLI-harness-only tests, interactive GUI test,
+      # profiler).
+      - name: Run full test suite
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          cd B20SS
+          python FMOFP/Tests/run_all_tests.py
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install ruff
+        run: pip install ruff
+
+      - name: Lint with ruff (errors only)
+        # NOTE (production readiness re-analysis, August 2026): this step's
+        # own output was piped through `|| true`, so it has never once been
+        # able to fail a CI run, regardless of what ruff found -- a lint job
+        # that can't fail isn't actually gating anything. Running this same
+        # check manually against the repo for the first time this session
+        # found 70 real F821 (undefined-name) bugs across 13 files (missing
+        # imports, never-extracted variables -- the exact "NameError when
+        # this code path executes" class of bug this session has repeatedly
+        # found and fixed via live testing) plus 4 duplicate-dict-key
+        # findings, all silently accumulating behind this swallowed exit
+        # code the whole time. All 70+4 are now fixed (one, a reference to a
+        # SchemaManager class that was never implemented anywhere in dead,
+        # unreachable code, is deliberately left as a documented exception
+        # rather than fabricated). Narrowed --select from the F8 prefix down
+        # to F821 specifically (dropping F841/unused-variable and other F8x
+        # codes not yet triaged, to avoid this becoming a large unrelated
+        # cleanup) and removed `|| true`, so a future regression of this
+        # kind will actually fail CI instead of silently passing.
+        run: |
+          ruff check B20SS/FMOFP \
+            --select E9,F821,F7,F6 \
+            --ignore F811 \
+            --exclude B20SS/FMOFP/Tests

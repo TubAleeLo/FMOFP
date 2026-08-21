@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message_templates>
+    <!-- Command message template -->
+    <command_message>
+        <message>
+            <weather_radarCommand>
+                <message_header>mode_change</message_header>
+                <command>set_mode {mode}</command>
+            </weather_radarCommand>
+        </message>
+    </command_message>
+
+    <!-- Status message template -->
+    <status_message>
+        <message>
+            <sender>{radar_name}</sender>
+            <status>{status}</status>
+            <query_uuid>{uuid}</query_uuid>
+        </message>
+    </status_message>
+
+    <!-- Mode change notification template -->
+    <mode_change_notification>
+        <message>
+            <type>mode_change</type>
+            <radar_name>{radar_name}</radar_name>
+            <mode>{mode}</mode>
+            <timestamp>{timestamp}</timestamp>
+        </message>
+    </mode_change_notification>
+
+    <!-- Command acknowledgment template -->
+    <command_acknowledgment>
+        <message>
+            <type>command_acknowledgment</type>
+            <command>{command}</command>
+            <status>{status}</status>
+            <timestamp>{timestamp}</timestamp>
+        </message>
+    </command_acknowledgment>
+
+    <!-- Message response test template -->
+    <message_response_test>
+        <!-- Command word format -->
+        <command_word>
+            <sync>100</sync>
+            <rt_address>01001</rt_address>
+            <tr_bit>0</tr_bit>
+            <subaddress>00001</subaddress>
+            <word_count>00010</word_count>
+            <parity>0</parity>
+            <expected>10001001000001000100</expected>
+        </command_word>
+        
+        <!-- Status word format -->
+        <status_word>
+            <sync>100</sync>
+            <rt_address>01001</rt_address>
+            <message_error>0</message_error>
+            <instrumentation>0</instrumentation>
+            <service_request>0</service_request>
+            <reserved>0</reserved>
+            <broadcast_cmd>0</broadcast_cmd>
+            <busy>0</busy>
+            <subsystem_flag>0</subsystem_flag>
+            <dynamic_bus_control>0</dynamic_bus_control>
+            <terminal_flag>1</terminal_flag>
+            <parity>1</parity>
+            <expected>10001001000000000011</expected>
+        </status_word>
+        
+        <!-- Data word format -->
+        <data_word>
+            <sync>001</sync>
+            <data_payload>0000000000000{mode}</data_payload>
+            <parity>{parity}</parity>
+            <modes>
+                <standby>
+                    <value>001</value>
+                    <parity>1</parity>
+                    <expected>00100000000000000011</expected>
+                </standby>
+                <surveillance>
+                    <value>010</value>
+                    <parity>1</parity>
+                    <expected>00100000000000000101</expected>
+                </surveillance>
+                <mapping>
+                    <value>011</value>
+                    <parity>0</parity>
+                    <expected>00100000000000000110</expected>
+                </mapping>
+            </modes>
+        </data_word>
+        
+        <!-- Expected message flow patterns -->
+        <message_flow>
+            <patterns>
+                <bc_command>BC_sender submitting message.*\['10001001000001000100'</bc_command>
+                <rt_status>RT constructed status word: 10001001000000000011</rt_status>
+                <rt_data>Remote_Terminal\.process_frame: Processed data word: [0-9]+</rt_data>
+                <mode_change>RadarMessenger: Setting weather_radar mode to {mode}</mode_change>
+            </patterns>
+            <timing>
+                <response_window>4-12</response_window>
+                <units>microseconds</units>
+            </timing>
+        </message_flow>
+    </message_response_test>
+
+    <!-- Weather data test template -->
+    <weather_data_test>
+        <!-- Weather data message format -->
+        <weather_data_message>
+            <message>
+                <type>weather_data</type>
+                <mode>surveillance</mode>
+                <scan_angle>0</scan_angle>
+                <cells>
+                    <cell>
+                        <x>25.0</x>
+                        <y>25.0</y>
+                        <intensity>0.8</intensity>
+                    </cell>
+                </cells>
+                <precipitation>
+                    <precip>
+                        <position>25.0,25.0</position>
+                        <type>heavy_rain</type>
+                        <rate>50.0</rate>
+                        <intensity>0.8</intensity>
+                    </precip>
+                    <precip>
+                        <position>65.0,65.0</position>
+                        <type>snow</type>
+                        <rate>15.0</rate>
+                        <intensity>0.4</intensity>
+                    </precip>
+                    <precip>
+                        <position>42.5,42.5</position>
+                        <type>hail</type>
+                        <rate>75.0</rate>
+                        <intensity>0.9</intensity>
+                    </precip>
+                </precipitation>
+            </message>
+        </weather_data_message>
+
+        <!-- Test data patterns -->
+        <test_data>
+            <reflectivity_patterns>
+                <heavy_rain>
+                    <dbz>50</dbz>
+                    <temperature>15</temperature>
+                    <expected_type>heavy_rain</expected_type>
+                </heavy_rain>
+                <snow>
+                    <dbz>35</dbz>
+                    <temperature>-10</temperature>
+                    <expected_type>snow</expected_type>
+                </snow>
+                <hail>
+                    <dbz>60</dbz>
+                    <temperature>5</temperature>
+                    <expected_type>hail</expected_type>
+                </hail>
+            </reflectivity_patterns>
+        </test_data>
+
+        <!-- Expected message flow patterns -->
+        <message_flow>
+            <patterns>
+                <local_request>Sending request: radar=weather_radar, type=weather_data</local_request>
+                <bc_command>BC_sender submitting message.*10001001000001</bc_command>
+                <rt_status>RT constructed status word: 10001001000000000011</rt_status>
+                <processing>Processing precipitation data</processing>
+                <detection>Detected precipitation: (rain|snow|hail)</detection>
+                <rate>Precipitation rate: \d+\.\d+ mm/hr</rate>
+            </patterns>
+            <timing>
+                <response_window>4-12</response_window>
+                <units>microseconds</units>
+            </timing>
+        </message_flow>
+
+        <!-- Display verification patterns -->
+        <display_verification>
+            <patterns>
+                <heavy_rain>
+                    <color>255,0,0</color>
+                    <label>Heavy Rain</label>
+                </heavy_rain>
+                <snow>
+                    <color>255,255,255</color>
+                    <label>Snow</label>
+                </snow>
+                <hail>
+                    <color>255,0,255</color>
+                    <label>Hail</label>
+                </hail>
+            </patterns>
+        </display_verification>
+    </weather_data_test>
+</message_templates>

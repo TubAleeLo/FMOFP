@@ -1,0 +1,135 @@
+<!-- Address, subaddress, and port information for each system.  Used by message handler. -->
+
+<addressBook>
+
+<!-- System addresses -->
+    <system id="avionics">
+        <name>Avionics</name>
+        <address>1</address>
+        <port>8001</port>
+    </system>
+    <system id="comms">
+        <name>Communications</name>
+        <address>2</address>
+        <port>8002</port>
+    </system>
+    <system id="enginemanagement">
+        <name>Engine Management</name>
+        <address>3</address>
+        <port>8003</port>
+    </system>
+    <system id="enviornmentalcontrolsystem">
+        <name>Environmental Control System</name>
+        <address>4</address>
+        <port>8004</port>
+    </system>
+    <system id="flightcontrolsys">
+        <name>Flight Control System</name>
+        <address>5</address>
+        <port>8005</port>
+    </system>
+    <system id="missionplanning">
+        <name>Mission Planning</name>
+        <address>6</address>
+        <port>8006</port>
+    </system>
+    <system id="nav">
+        <name>Navigation</name>
+        <address>7</address>
+        <port>8007</port>
+    </system>
+    <system id="powermanagement">
+        <name>Power Management</name>
+        <address>8</address>
+        <port>8008</port>
+    </system>
+    <system id="radar">
+        <name>Radar</name>
+        <address>9</address>
+        <port>8009</port>
+    </system>
+    <system id="sensormanagement">
+        <name>Sensor Management</name>
+        <address>10</address>
+        <port>8010</port>
+    </system>
+
+    <system id="displays">
+        <name>Display System</name>
+        <address>11</address>
+        <port>8011</port>
+    </system>
+
+<!-- Radar subaddresses -->
+    <subaddress id="weather_radar">
+        <name>Weather Radar</name>
+        <subaddress>1</subaddress>
+    </subaddress>
+    <subaddress id="tfr_radar">
+        <name>Ground Mapping Radar</name>
+        <subaddress>2</subaddress>
+    </subaddress>
+    <subaddress id="sar_radar">
+        <name>Air Mapping Radar</name>
+        <subaddress>3</subaddress>
+    </subaddress>
+    <subaddress id="targeting_radar">
+        <name>Targeting Radar</name>
+        <subaddress>4</subaddress>
+    </subaddress>
+    <subaddress id="aewc_radar">
+        <name>Collision Avoidance Radar</name>
+        <subaddress>5</subaddress>
+    </subaddress>
+
+    <!-- Display Command Subaddresses -->
+    <subaddress id="show">
+        <name>Show Display Command</name>
+        <subaddress>1</subaddress>
+    </subaddress>
+    <subaddress id="mode">
+        <name>Mode Change Command</name>
+        <subaddress>2</subaddress>
+    </subaddress>
+    <subaddress id="data">
+        <name>Data Request Command</name>
+        <subaddress>3</subaddress>
+    </subaddress>
+    <subaddress id="status">
+        <name>Status Request Command</name>
+        <subaddress>4</subaddress>
+    </subaddress>
+
+    <!-- Display subaddresses -->
+    <subaddress id="pfd">
+        <name>Primary Flight Display</name>
+        <subaddress>11</subaddress>
+    </subaddress>
+    <subaddress id="mfd">
+        <name>Multi-Function Display</name>
+        <subaddress>12</subaddress>
+    </subaddress>
+    <subaddress id="eicas">
+        <name>Engine Indicating and Crew Alerting System</name>
+        <subaddress>13</subaddress>
+    </subaddress>
+    <subaddress id="radar_display">
+        <name>Radar Display</name>
+        <subaddress>14</subaddress>
+    </subaddress>
+    <subaddress id="tsd">
+        <name>Tactical Situation Display</name>
+        <subaddress>15</subaddress>
+    </subaddress>
+    <subaddress id="sms">
+        <name>Stores Management System</name>
+        <subaddress>16</subaddress>
+    </subaddress>
+
+    <!-- Mode Code Subaddresses -->
+    <subaddress id="mode_codes">
+        <name>Mode Code Operations</name>
+        <subaddress>31</subaddress>
+    </subaddress>
+    
+</addressBook>

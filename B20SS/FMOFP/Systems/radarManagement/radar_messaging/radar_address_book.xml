@@ -1,0 +1,172 @@
+<!-- 
+Address, subaddress, and port information for each system. 
+Reference: \FMOFP\local_messaging\messageConfigurations\message_definitions.py
+-->
+<!-- Address, subaddress, and port information for each system.  Used by Remote Terminal. -->
+<!-- Mirror of Msg_handler/messageConfigurations/address_book.xml -->
+<addressBook>
+
+<!--##################################-->
+<!-- System addresses -->
+
+    <system id="unnamed_system">
+        <name>Unnamed System</name>
+        <address>0</address>
+        <port>8000</port>
+    </system>
+    <system id="avionics">
+        <name>Avionics</name>
+        <address>1</address>
+        <port>8001</port>
+    </system>
+    <system id="comms">
+        <name>Communications</name>
+        <address>2</address>
+        <port>8002</port>
+    </system>
+    <system id="enginemanagement">
+        <name>Engine Management</name>
+        <address>3</address>
+        <port>8003</port>
+    </system>
+    <system id="enviornmentalcontrolsystem">
+        <name>Environmental Control System</name>
+        <address>4</address>
+        <port>8004</port>
+    </system>
+    <system id="unnamed_system">
+        <name>Flight Control System</name>
+        <address>5</address>
+        <port>8005</port>
+    </system>
+    <system id="missionplanning">
+        <name>Mission Planning</name>
+        <address>6</address>
+        <port>8006</port>
+    </system>
+    <system id="nav">
+        <name>Navigation</name>
+        <address>7</address>
+        <port>8007</port>
+    </system>
+    <system id="powermanagement">
+        <name>Power Management</name>
+        <address>8</address>
+        <port>8008</port>
+    </system>
+    <system id="radar">
+        <name>Radar</name>
+        <address>9</address>
+        <port>8009</port>
+    </system>
+    <system id="sensormanagement">
+        <name>Sensor Management</name>
+        <address>10</address>
+        <port>8010</port>
+    </system>
+    <system id="displays">
+        <name>Display System</name>
+        <address>11</address>
+        <port>8011</port>
+    </system>
+
+    <system id="flightmanagementsystem">
+        <name>Flight Management System</name>
+        <address>12</address>
+        <port>8012</port>
+    </system>
+
+
+
+<!--##################################-->
+<!--###### System Subaddresses #######-->
+<!--##################################-->
+
+    <!-- Radar subaddresses -->
+    <subaddress id="weather_radar">
+        <name>Weather Radar</name>
+        <subaddress>1</subaddress>
+    </subaddress>
+    <subaddress id="tfr_radar">
+        <name>Ground Mapping Radar</name>
+        <subaddress>2</subaddress>
+    </subaddress>
+    <subaddress id="sar_radar">
+        <name>Air Mapping Radar</name>
+        <subaddress>3</subaddress>
+    </subaddress>
+    <subaddress id="targeting_radar">
+        <name>Targeting Radar</name>
+        <subaddress>4</subaddress>
+    </subaddress>
+    <subaddress id="aewc_radar">
+        <name>Collision Avoidance Radar</name>
+        <subaddress>5</subaddress>
+    </subaddress>
+
+    <!-- Display subaddresses -->
+    <subaddress id="pfd">
+        <name>Primary Flight Display</name>
+        <subaddress>11</subaddress>
+    </subaddress>
+    <subaddress id="mfd">
+        <name>Multi-Function Display</name>
+        <subaddress>12</subaddress>
+    </subaddress>
+    <subaddress id="eicas">
+        <name>Engine Indicating and Crew Alerting System Display</name>
+        <subaddress>13</subaddress>
+    </subaddress>
+    <subaddress id="radar_display">
+        <name>Radar Display</name>
+        <subaddress>14</subaddress>
+    </subaddress>
+    <subaddress id="tsd">
+        <name>Tactical Situation Display</name>
+        <subaddress>15</subaddress>
+    </subaddress>
+    <subaddress id="sms">
+        <name>Stores Management Display</name>
+        <subaddress>16</subaddress>
+    </subaddress>
+    <subaddress id="fms">
+        <name>Flight Management Display</name>
+        <subaddress>17</subaddress>
+    </subaddress>
+
+    <!-- Sensor Management subaddresses -->
+    <subaddress id="sensor_management">
+        <name>Sensor Management</name>
+        <subaddress>1</subaddress>
+    </subaddress>
+    <subaddress id="sensor_control">
+        <name>Sensor Control</name>
+        <subaddress>2</subaddress>
+    </subaddress>
+    <subaddress id="sensor_data">
+        <name>Sensor Data</name>
+        <subaddress>3</subaddress>
+    </subaddress>
+
+    <!-- Mode Code Subaddresses -->
+    <subaddress id="mode_codes">
+        <name>Mode Code Operations</name>
+        <subaddress>31</subaddress>
+    </subaddress>
+    
+    <!-- FMS Subaddresses -->
+        <!--    FMS    -->
+    <subaddress id="flight_management">
+        <name>FMS Control</name>
+        <subaddress>15</subaddress>
+    </subaddress>
+
+        <!--    FCS    -->
+    <subaddress id="flight_control">
+        <name>Flight Control</name>
+        <subaddress>10</subaddress>
+    </subaddress>
+    <!--    These are not subsystems and not typical subaddresses -->
+
+    
+</addressBook>

@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+DEBUG*.log
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
+
+# Tracking files
+*.lock
+
+
+
+# History files
+B20SS/.history/
+
+# Temporary files
+.import_cache.db

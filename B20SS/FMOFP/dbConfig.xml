@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <max_total_workers>20</max_total_workers>
+
+  <!-- List of system names -->
+  <systems>
+    <system_name>default</system_name>
+    <system_name>radar_management</system_name>
+    <system_name>AEWC Radar</system_name>
+    <system_name>SAR Radar</system_name>
+    <system_name>Targeting Radar</system_name>
+    <system_name>TFR Radar</system_name>
+    <system_name>Weather Radar</system_name>
+    <system_name>gps_system</system_name>
+    <system_name>environmental_control_system</system_name>
+    <system_name>mission_management_system</system_name>
+    <system_name>power_management_system</system_name>
+    <system_name>flight_control_computer</system_name>
+    <system_name>flightManagementSystem</system_name>
+    <system_name>sat_com</system_name>
+    <system_name>radio</system_name>
+    <system_name>data_link</system_name>
+    <system_name>displays</system_name>
+  </systems>
+
+  <!-- Default configurations -->
+  <system name="default" db_name="default.db">
+    <query_rate type="select" limit="100" duration="60" />
+    <query_rate type="insert" limit="50" duration="30" />
+    <query_rate type="update" limit="50" duration="30" />
+    <query_rate type="create" limit="10" duration="60" />
+    <batch_operation type="insert" size="1000" interval="5" />
+    <batch_operation type="update" size="500" interval="10" />
+    <retry_policy attempts="3" delay="1" />
+    <connection_pool min="2" max="5" />
+  </system>
+
+  <!-- Radar Management System -->
+  <system name="radar_management" db_name="radar_data.db">
+    <query_rate type="select" limit="200" duration="30" />
+    <query_rate type="insert" limit="100" duration="10" />
+    <query_rate type="update" limit="100" duration="10" />
+    <batch_operation type="insert" size="1" interval="0" />
+    <batch_operation type="update" size="1" interval="0" />
+    <retry_policy attempts="3" delay="1" />
+    <connection_pool min="2" max="4" />
+  </system>
+
+  <system name="AEWC Radar" db_name="radar_data.db">
+    <query_rate type="select" limit="200" duration="120" />
+    <query_rate type="insert" limit="100" duration="60" />
+    <query_rate type="update" limit="100" duration="60" />
+    <batch_operation type="insert" size="2000" interval="3" />
+    <batch_operation type="update" size="1000" interval="5" />
+    <retry_policy attempts="5" delay="2" />
+    <connection_pool min="4" max="8" />
+  </system>
+
+  <system name="SAR Radar" db_name="radar_data.db">
+    <query_rate type="select" limit="200" duration="120" />
+    <query_rate type="insert" limit="100" duration="60" />
+    <query_rate type="update" limit="100" duration="60" />
+    <batch_operation type="insert" size="2000" interval="3" />
+    <batch_operation type="update" size="1000" interval="5" />
+    <retry_policy attempts="5" delay="2" />
+    <connection_pool min="4" max="8" />
+  </system>
+
+  <system name="Targeting Radar" db_name="radar_data.db">
+    <query_rate type="select" limit="200" duration="120" />
+    <query_rate type="insert" limit="100" duration="60" />
+    <query_rate type="update" limit="100" duration="60" />
+    <batch_operation type="insert" size="2000" interval="3" />
+    <batch_operation type="update" size="1000" interval="5" />
+    <retry_policy attempts="5" delay="2" />
+    <connection_pool min="4" max="8" />
+  </system>
+
+  <system name="TFR Radar" db_name="radar_data.db">
+    <query_rate type="select" limit="200" duration="120" />
+    <query_rate type="insert" limit="100" duration="60" />
+    <query_rate type="update" limit="100" duration="60" />
+    <batch_operation type="insert" size="2000" interval="3" />
+    <batch_operation type="update" size="1000" interval="5" />
+    <retry_policy attempts="5" delay="2" />
+    <connection_pool min="4" max="8" />
+  </system>
+
+  <system name="Weather Radar" db_name="radar_data.db">
+    <query_rate type="select" limit="200" duration="120" />
+    <query_rate type="insert" limit="100" duration="60" />
+    <query_rate type="update" limit="100" duration="60" />
+    <batch_operation type="insert" size="2000" interval="3" />
+    <batch_operation type="update" size="1000" interval="5" />
+    <retry_policy attempts="5" delay="2" />
+    <connection_pool min="4" max="8" />
+  </system>
+
+  <!-- GPS System -->
+  <system name="gps_system" db_name="navigation_data.db">
+    <query_rate type="select" limit="150" duration="60" />
+    <query_rate type="insert" limit="75" duration="30" />
+    <query_rate type="update" limit="75" duration="30" />
+    <batch_operation type="insert" size="1500" interval="4" />
+    <batch_operation type="update" size="750" interval="7" />
+    <retry_policy attempts="4" delay="1" />
+    <connection_pool min="3" max="6" />
+  </system>
+
+  <!-- Environmental Control System -->
+  <system name="environmental_control_system" db_name="ecs_data.db">
+    <query_rate type="select" limit="100" duration="60" />
+    <query_rate type="insert" limit="50" duration="30" />
+    <query_rate type="update" limit="50" duration="30" />
+    <batch_operation type="insert" size="1000" interval="5" />
+    <batch_operation type="update" size="500" interval="10" />
+    <retry_policy attempts="3" delay="1" />
+    <connection_pool min="2" max="5" />
+  </system>
+
+  <!-- Mission Management System -->
+  <system name="mission_management_system" db_name="mission_data.db">
+    <query_rate type="select" limit="150" duration="90" />
+    <query_rate type="insert" limit="75" duration="45" />
+    <query_rate type="update" limit="75" duration="45" />
+    <batch_operation type="insert" size="1500" interval="4" />
+    <batch_operation type="update" size="750" interval="8" />
+    <retry_policy attempts="4" delay="2" />
+    <connection_pool min="3" max="7" />
+  </system>
+
+  <!-- Power Management System -->
+  <system name="power_management_system" db_name="power_data.db">
+    <query_rate type="select" limit="120" duration="60" />
+    <query_rate type="insert" limit="60" duration="30" />
+    <query_rate type="update" limit="60" duration="30" />
+    <batch_operation type="insert" size="1200" interval="5" />
+    <batch_operation type="update" size="600" interval="10" />
+    <retry_policy attempts="3" delay="1" />
+    <connection_pool min="2" max="5" />
+  </system>
+
+  <!-- Flight Control Computer -->
+  <system name="flight_control_computer" db_name="flight_control_data.db">
+    <query_rate type="select" limit="200" duration="60" />
+    <query_rate type="insert" limit="100" duration="30" />
+    <query_rate type="update" limit="100" duration="30" />
+    <batch_operation type="insert" size="2000" interval="3" />
+    <batch_operation type="update" size="1000" interval="5" />
+    <retry_policy attempts="5" delay="1" />
+    <connection_pool min="4" max="8" />
+  </system>
+  
+  <!-- Flight Management System -->
+  <system name="flightManagementSystem" db_name="fms_data.db">
+    <query_rate type="select" limit="200" duration="60" />
+    <query_rate type="insert" limit="100" duration="30" />
+    <query_rate type="update" limit="100" duration="30" />
+    <batch_operation type="insert" size="2000" interval="3" />
+    <batch_operation type="update" size="1000" interval="5" />
+    <retry_policy attempts="5" delay="1" />
+    <connection_pool min="4" max="8" />
+  </system>
+
+  <!-- SatCom System -->
+  <system name="sat_com" db_name="communication_data.db">
+    <query_rate type="select" limit="100" duration="60" />
+    <query_rate type="insert" limit="50" duration="30" />
+    <query_rate type="update" limit="50" duration="30" />
+    <batch_operation type="insert" size="1000" interval="5" />
+    <batch_operation type="update" size="500" interval="10" />
+    <retry_policy attempts="3" delay="2" />
+    <connection_pool min="2" max="5" />
+  </system>
+
+  <!-- Radio System -->
+  <system name="radio" db_name="communication_data.db">
+    <query_rate type="select" limit="100" duration="60" />
+    <query_rate type="insert" limit="50" duration="30" />
+    <query_rate type="update" limit="50" duration="30" />
+    <batch_operation type="insert" size="1000" interval="5" />
+    <batch_operation type="update" size="500" interval="10" />
+    <retry_policy attempts="3" delay="1" />
+    <connection_pool min="2" max="5" />
+  </system>
+
+  <!-- Data Link System -->
+  <system name="data_link" db_name="communication_data.db">
+    <query_rate type="select" limit="150" duration="60" />
+    <query_rate type="insert" limit="75" duration="30" />
+    <query_rate type="update" limit="75" duration="30" />
+    <batch_operation type="insert" size="1500" interval="4" />
+    <batch_operation type="update" size="750" interval="8" />
+    <retry_policy attempts="4" delay="1" />
+    <connection_pool min="3" max="6" />
+  </system>
+
+  <!-- Display System -->
+  <system name="displays" db_name="display_data.db">
+    <query_rate type="select" limit="200" duration="60" />
+    <query_rate type="insert" limit="100" duration="30" />
+    <query_rate type="update" limit="100" duration="30" />
+    <batch_operation type="insert" size="2000" interval="3" />
+    <batch_operation type="update" size="1000" interval="5" />
+    <retry_policy attempts="5" delay="1" />
+    <connection_pool min="4" max="8" />
+  </system>
+</root>

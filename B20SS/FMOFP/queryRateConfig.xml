@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<queryRateConfig>
+    <rate>
+        <type>insert</type>
+        <limit>10</limit>
+        <duration>1</duration>
+    </rate>
+    <rate>
+        <type>select</type>
+        <limit>20</limit>
+        <duration>1</duration>
+    </rate>
+    <rate>
+        <type>update</type>
+        <limit>5</limit>
+        <duration>1</duration>
+    </rate>
+</queryRateConfig>

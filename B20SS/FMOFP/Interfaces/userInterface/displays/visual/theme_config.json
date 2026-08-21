@@ -1,0 +1,134 @@
+{
+  "night": {
+    "display_types": {
+      "pfd": "standard",
+      "mfd": "standard",
+      "hud": "standard",
+      "radar": "standard"
+    },
+    "colors": {
+      "hud": [255, 0, 0, 180],
+      "warning": [200, 100, 0, 180],
+      "caution": [180, 50, 0, 180],
+      "critical": [150, 0, 0, 180],
+      "background": [0, 0, 0, 255],
+      "sky": [10, 20, 40, 255],
+      "ground": [30, 20, 10, 255],
+      "friendly": [150, 0, 0, 180],
+      "enemy": [150, 0, 0, 180],
+      "neutral": [150, 0, 0, 180],
+      "menu_background": [10, 10, 10, 255],
+      "menu_highlight": [30, 20, 20, 255],
+      "menu_text": [255, 0, 0, 180],
+      "menu_text_highlight": [200, 100, 0, 180],
+      "grid": [50, 0, 0, 100],
+      "data_primary": [255, 0, 0, 180],
+      "data_secondary": [200, 50, 0, 180],
+      "data_tertiary": [150, 0, 0, 180],
+      "overlay_background": [10, 5, 5, 180]
+    },
+    "styles": {
+      "line_width": 1.0,
+      "use_gradients": true,
+      "use_shadows": false,
+      "use_animations": true,
+      "animation_duration": 300,
+      "corner_radius": 0.0,
+      "grid_type": "radial",
+      "glow_intensity": 0.5,
+      "use_pulse_effects": true,
+      "pulse_rate": 1.0,
+      "use_angular_design": true,
+      "information_density": "minimal"
+    }
+  },
+  "modern": {
+    "display_types": {
+      "pfd": "holographic",
+      "mfd": "holographic",
+      "hud": "holographic",
+      "radar": "standard"
+    },
+    "colors": {
+      "hud": [0, 210, 255, 220],
+      "warning": [255, 180, 0, 220],
+      "caution": [255, 100, 0, 220],
+      "critical": [255, 30, 30, 220],
+      "background": [0, 0, 0, 255],
+      "sky": [20, 80, 180, 255],
+      "ground": [120, 70, 20, 255],
+      "friendly": [30, 150, 255, 220],
+      "enemy": [220, 30, 30, 220],
+      "neutral": [200, 200, 220, 220],
+      "menu_background": [25, 25, 25, 255],
+      "menu_highlight": [40, 40, 60, 255],
+      "menu_text": [0, 210, 255, 220],
+      "menu_text_highlight": [255, 180, 0, 220],
+      "grid": [40, 80, 100, 100],
+      "data_primary": [0, 210, 255, 220],
+      "data_secondary": [30, 150, 255, 220],
+      "data_tertiary": [255, 180, 0, 220],
+      "overlay_background": [20, 20, 30, 180]
+    },
+    "styles": {
+      "line_width": 1.5,
+      "use_gradients": true,
+      "use_shadows": true,
+      "shadow_blur": 3.0,
+      "shadow_offset_x": 1.0,
+      "shadow_offset_y": 1.0,
+      "use_animations": true,
+      "animation_duration": 200,
+      "corner_radius": 2.0,
+      "grid_type": "circular",
+      "glow_intensity": 0.6,
+      "use_pulse_effects": true,
+      "pulse_rate": 1.2,
+      "use_angular_design": false,
+      "information_density": "standard"
+    }
+  },
+  "classic": {
+    "display_types": {
+      "pfd": "standard",
+      "mfd": "standard",
+      "hud": "standard",
+      "radar": "standard"
+    },
+    "colors": {
+      "hud": [0, 255, 0, 200],
+      "warning": [255, 255, 0, 200],
+      "caution": [255, 165, 0, 200],
+      "critical": [255, 0, 0, 200],
+      "background": [0, 0, 0, 255],
+      "sky": [0, 128, 255, 255],
+      "ground": [139, 69, 19, 255],
+      "friendly": [0, 255, 0, 200],
+      "enemy": [255, 0, 0, 200],
+      "neutral": [255, 255, 0, 200],
+      "menu_background": [30, 30, 30, 255],
+      "menu_highlight": [60, 60, 60, 255],
+      "menu_text": [0, 255, 0, 200],
+      "menu_text_highlight": [255, 255, 0, 200],
+      "grid": [0, 128, 0, 100],
+      "data_primary": [0, 255, 0, 200],
+      "data_secondary": [0, 200, 0, 200],
+      "data_tertiary": [255, 255, 0, 200],
+      "overlay_background": [0, 0, 0, 180]
+    },
+    "styles": {
+      "line_width": 1.0,
+      "use_gradients": false,
+      "use_shadows": false,
+      "use_animations": false,
+      "animation_duration": 0,
+      "corner_radius": 0.0,
+      "grid_type": "circular",
+      "glow_intensity": 0.0,
+      "use_pulse_effects": false,
+      "pulse_rate": 0.0,
+      "use_angular_design": false,
+      "information_density": "minimal"
+    }
+  }
+}

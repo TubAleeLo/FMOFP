@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<radar_management_config>
+  <weather_radar>
+    <tilt_range>
+      <min>0</min>
+      <max>90</max>
+    </tilt_range>
+    <scan_range>
+      <min>10</min>
+      <max>200</max>
+    </scan_range>
+    <resolution>
+      <min>0.5</min>
+      <max>5</max>
+    </resolution>
+  </weather_radar>
+
+  <targeting_radar>
+    <tilt_range>
+      <min>-10</min>
+      <max>20</max>
+    </tilt_range>
+    <scan_range>
+      <min>5</min>
+      <max>100</max>
+    </scan_range>
+    <resolution>
+      <min>0.1</min>
+      <max>1</max>
+    </resolution>
+    <target_types>
+      <type>air</type>
+      <type>ground</type>
+      <type>sea</type>
+    </target_types>
+  </targeting_radar>
+
+  <aewc_radar>
+    <tilt_range>
+      <min>-5</min>
+      <max>85</max>
+    </tilt_range>
+    <scan_range>
+      <min>50</min>
+      <max>500</max>
+    </scan_range>
+    <resolution>
+      <min>1</min>
+      <max>10</max>
+    </resolution>
+  </aewc_radar>
+
+  <sar_radar>
+    <tilt_range>
+      <min>-20</min>
+      <max>20</max>
+    </tilt_range>
+    <scan_range>
+      <min>1</min>
+      <max>50</max>
+    </scan_range>
+    <resolution>
+      <min>0.1</min>
+      <max>10</max>
+    </resolution>
+  </sar_radar>
+
+  <tfr_radar>
+    <tilt_range>
+      <min>-45</min>
+      <max>0</max>
+    </tilt_range>
+    <scan_range>
+      <min>0.1</min>
+      <max>10</max>
+    </scan_range>
+    <resolution>
+      <min>0.05</min>
+      <max>1</max>
+    </resolution>
+    <altitude_range>
+      <min>30</min>
+      <max>5000</max>
+    </altitude_range>
+  </tfr_radar>
+</radar_management_config>

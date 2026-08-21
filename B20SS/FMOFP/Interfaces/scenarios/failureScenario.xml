@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scenario name="Systems Failure Training" version="1.0">
+  <!--
+    B20SS Systems Failure Scenario
+    Purpose: Train crew to identify and manage cascading system failures
+  -->
+
+  <event id="MSG-001" type="message" time_s="0">
+    <text>Failure scenario initiated. All systems nominal at start.</text>
+  </event>
+
+  <!-- T+15s: Hydraulic system A fault -->
+  <event id="FAIL-001" type="system_failure" time_s="15">
+    <system>hydraulic_system_a</system>
+    <description>HYD SYS A — Loss of pressure. Check HYD A PRESS on EICAS.</description>
+  </event>
+
+  <event id="MSG-002" type="message" time_s="15">
+    <text>HYDRAULIC SYSTEM A FAILURE. Switch to backup hydraulics.</text>
+  </event>
+
+  <!-- T+30s: Engine vibration spike -->
+  <event id="FAIL-002" type="system_failure" time_s="30">
+    <system>engine_vibration</system>
+    <description>ENG VIB HIGH — Compressor stall suspected. Monitor EGT and N1.</description>
+  </event>
+
+  <!-- T+45s: Radar contact — hostile, close range -->
+  <event id="RC-001" type="radar_contact" time_s="45">
+    <track_id>T99</track_id>
+    <x>15.0</x>
+    <y>10.0</y>
+    <alt_ft>28000</alt_ft>
+    <vx>8.0</vx>
+    <vy>5.0</vy>
+    <classification>FIGHTER</classification>
+    <identity>HOSTILE</identity>
+  </event>
+
+  <!-- T+50s: Immediate RWR threat -->
+  <event id="TH-001" type="threat_launch" time_s="50">
+    <name>AAM-LAUNCH</name>
+    <bearing_deg>045</bearing_deg>
+    <range_nm>12</range_nm>
+    <band>Ka</band>
+    <threat_type>AIR</threat_type>
+    <priority>1</priority>
+  </event>
+
+  <event id="MSG-003" type="message" time_s="50">
+    <text>MISSILE LAUNCH WARNING. Deploy flares and break hard.</text>
+  </event>
+
+  <!-- T+70s: FCS degraded mode -->
+  <event id="FAIL-003" type="system_failure" time_s="70">
+    <system>flight_control_computer</system>
+    <description>FCC — Partial authority. Manual reversion to backup FBW.</description>
+  </event>
+
+  <!-- T+90s: Fuel imbalance -->
+  <event id="FAIL-004" type="system_failure" time_s="90">
+    <system>fuel_transfer</system>
+    <description>FUEL IMBALANCE — Cross-feed valve open. Monitor balance.</description>
+  </event>
+
+  <!-- T+110s: Weather cell forces route change -->
+  <event id="WX-001" type="weather_cell" time_s="110">
+    <x>5.0</x>
+    <y>0.0</y>
+    <intensity>0.9</intensity>
+    <reflectivity>62</reflectivity>
+    <size>15.0</size>
+    <category>SEVERE</category>
+  </event>
+
+  <event id="MSG-004" type="message" time_s="110">
+    <text>Severe weather on planned route. Divert immediately.</text>
+  </event>
+
+  <!-- T+130s: Divert waypoint injected -->
+  <event id="WP-001" type="waypoint" time_s="130">
+    <lat>35.25</lat>
+    <lon>-98.10</lon>
+    <alt_ft>8000</alt_ft>
+    <name>DIVERT</name>
+  </event>
+
+  <!-- T+160s: Recovery phase -->
+  <event id="PH-001" type="phase_change" time_s="160">
+    <phase>EGRESS</phase>
+  </event>
+
+  <event id="MSG-005" type="message" time_s="160">
+    <text>Proceed to divert airfield. Declare emergency if required.</text>
+  </event>
+
+  <!-- T+200s: Scenario complete -->
+  <event id="MSG-006" type="message" time_s="200">
+    <text>Failure scenario complete. Debrief crew on all identified issues.</text>
+  </event>
+
+  <event id="PH-002" type="phase_change" time_s="210">
+    <phase>COMPLETE</phase>
+  </event>
+
+</scenario>

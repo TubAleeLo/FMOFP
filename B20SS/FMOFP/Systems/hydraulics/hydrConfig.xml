@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hydraulicSystems>
+  <primarySystem>
+    <id>1</id>
+    <description>Main hydraulic system</description>
+    <components>
+      <component>
+        <name>mainPump</name>
+        <description>Main hydraulic pump</description>
+      </component>
+      <component>
+        <name>primaryReservoir</name>
+        <description>Primary hydraulic fluid reservoir</description>
+      </component>
+    </components>
+  </primarySystem>
+  
+  <backupSystem>
+    <id>2</id> 
+    <description>Backup hydraulic system</description>
+    <components>
+      <component>
+        <name>backupPump</name>
+        <description>Backup hydraulic pump</description>        
+      </component>
+      <component>
+        <name>backupReservoir</name>
+        <description>Backup hydraulic fluid reservoir</description>
+      </component>
+    </components>
+  </backupSystem>
+  
+  <nominalPressure>3000</nominalPressure>
+  <warningThreshold>2500</warningThreshold>
+  <criticalThreshold>2000</criticalThreshold>
+</hydraulicSystems>

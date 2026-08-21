@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <!-- Command Acknowledgment Template -->
+    <command_acknowledgment>
+        <message_header>{message_header}</message_header>
+        <sending_system>{sending_system}</sending_system>
+        <destination>{destination}</destination>
+        <message_type>{message_type}</message_type>
+        <type>command_acknowledgment</type>
+        <command>{command}</command>
+        <status>{status}</status>
+        <timestamp>{timestamp}</timestamp>
+    </command_acknowledgment>
+
+    <!-- 1553B Format Details -->
+    <format>
+        <status_word>
+            <sync>100</sync>
+            <rt_address>01011</rt_address>
+            <message_error>0</message_error>
+            <instrumentation>0</instrumentation>
+            <service_request>0</service_request>
+            <reserved>000</reserved>
+            <broadcast>0</broadcast>
+            <busy>0</busy>
+            <subsystem>0</subsystem>
+            <dynamic_bus_control>0</dynamic_bus_control>
+            <terminal_flag>0</terminal_flag>
+            <parity>1</parity>
+        </status_word>
+        <data_word>
+            <sync>001</sync>
+            <command_value bits="3">{command_value}</command_value>
+            <reserved bits="13">0000000000000</reserved>
+            <parity>1</parity>
+        </data_word>
+    </format>
+
+    <!-- Response Definitions -->
+    <responses>
+        <response name="display_shown">
+            <command_value>001</command_value>  <!-- 3-bit command value for show -->
+            <description>Display shown successfully</description>
+            <tr_bit>1</tr_bit>  <!-- RT to BC -->
+            <subaddress>00001</subaddress>  <!-- Show command response -->
+        </response>
+        <response name="mode_set">
+            <command_value>010</command_value>  <!-- 3-bit command value for mode -->
+            <description>Display mode set successfully</description>
+            <tr_bit>1</tr_bit>  <!-- RT to BC -->
+            <subaddress>00010</subaddress>  <!-- Mode command response -->
+        </response>
+    </responses>
+</message>

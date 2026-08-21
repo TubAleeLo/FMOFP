@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <sender>display_control</sender>
+
+    <!-- Display Commands -->
+    <displayCommand>
+        <message_header>{message_header}</message_header>
+        <sending_system>{sending_system}</sending_system>
+        <destination>{destination}</destination>
+        <message_type>{message_type}</message_type>
+        <command>{command}</command>
+        <display_type>{display_type}</display_type>
+        <mode>{mode}</mode>
+    </displayCommand>
+
+    <!-- 1553B Format Details -->
+    <format>
+        <command_word>
+            <sync>100</sync>
+            <rt_address>01011</rt_address>
+            <tr_bit>{tr_bit}</tr_bit>  <!-- 0 for show, 1 for mode -->
+            <subaddress>{subaddress}</subaddress>  <!-- 00001 for show, 00010 for mode -->
+            <word_count>00001</word_count>
+            <parity>1</parity>
+        </command_word>
+        <data_word>
+            <sync>001</sync>
+            <command_value bits="3">{command_value}</command_value>  <!-- Command type in 3 bits -->
+            <reserved bits="13">0000000000000</reserved>
+            <parity>1</parity>
+        </data_word>
+    </format>
+
+    <!-- Command Definitions -->
+    <commands>
+        <command name="show_display">
+            <command_value>001</command_value>  <!-- 3-bit command value -->
+            <tr_bit>0</tr_bit>  <!-- BC to RT -->
+            <subaddress>00001</subaddress>  <!-- Show commands use subaddress 1 -->
+            <description>Show specified display</description>
+        </command>
+        <command name="set_mode">
+            <command_value>010</command_value>  <!-- 3-bit command value -->
+            <tr_bit>1</tr_bit>  <!-- RT to BC -->
+            <subaddress>00010</subaddress>  <!-- Mode commands use subaddress 2 -->
+            <description>Set display mode</description>
+        </command>
+    </commands>
+</message>

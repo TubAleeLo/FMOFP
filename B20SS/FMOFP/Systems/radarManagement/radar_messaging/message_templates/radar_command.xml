@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<message>
+    <sender>radar_control</sender>
+    
+    <!-- Weather Radar Commands -->
+    <weather_radarCommand>
+        <message_header>{message_header}</message_header>
+        <sending_system>{sending_system}</sending_system>
+        <destination>{destination}</destination>
+        <message_type>{message_type}</message_type>
+        <command>{command}</command>
+    </weather_radarCommand>
+
+    <!-- TFR Radar Commands -->
+    <tfr_radarCommand>
+        <message_header>{message_header}</message_header>
+        <sending_system>{sending_system}</sending_system>
+        <destination>{destination}</destination>
+        <message_type>{message_type}</message_type>
+        <command>{command}</command>
+        <elevation_data>
+            <distance>{distance}</distance>
+            <elevation>{elevation}</elevation>
+        </elevation_data>
+    </tfr_radarCommand>
+
+    <!-- SAR Radar Commands -->
+    <sar_radarCommand>
+        <message_header>{message_header}</message_header>
+        <sending_system>{sending_system}</sending_system>
+        <destination>{destination}</destination>
+        <message_type>{message_type}</message_type>
+        <command>{command}</command>
+        <imagery_data>
+            <image_data>{image_data}</image_data>
+            <corner_points>{corner_points}</corner_points>
+            <resolution>{resolution}</resolution>
+        </imagery_data>
+    </sar_radarCommand>
+
+    <!-- Targeting Radar Commands -->
+    <targeting_radarCommand>
+        <message_header>{message_header}</message_header>
+        <sending_system>{sending_system}</sending_system>
+        <destination>{destination}</destination>
+        <message_type>{message_type}</message_type>
+        <command>{command}</command>
+        <track_data>
+            <track_id>{track_id}</track_id>
+            <position>{position}</position>
+            <velocity>{velocity}</velocity>
+            <identity>{identity}</identity>
+            <classification>{classification}</classification>
+        </track_data>
+    </targeting_radarCommand>
+
+    <!-- AEWC Radar Commands -->
+    <aewc_radarCommand>
+        <message_header>{message_header}</message_header>
+        <sending_system>{sending_system}</sending_system>
+        <destination>{destination}</destination>
+        <message_type>{message_type}</message_type>
+        <command>{command}</command>
+        <track_data>
+            <track_id>{track_id}</track_id>
+            <position>{position}</position>
+            <velocity>{velocity}</velocity>
+            <identity>{identity}</identity>
+            <classification>{classification}</classification>
+            <is_stealth>{is_stealth}</is_stealth>
+        </track_data>
+    </aewc_radarCommand>
+</message>

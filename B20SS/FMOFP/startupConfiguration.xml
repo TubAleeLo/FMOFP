@@ -1,0 +1,13 @@
+<configuration>
+    <logging>
+        <commandInterface>True</commandInterface>   <!-- True or False to enable or disable command interface -->
+        <logging_enabled>True</logging_enabled>     <!-- True or False to enable or disable logging -->
+        <debugging>True</debugging>                 <!-- True or False to enable or disable debugging -->
+        <level>Debug</level>                        <!-- Debug, info, warning, error, critical -->
+        <console_output>True</console_output>       <!-- True or False to enable or disable output to terminal -->
+    </logging>
+    <database>
+        <db_name>system_data.db</db_name>
+        <key>B2OSS</key>
+    </database>
+</configuration>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema>
+    <system name="default">
+        <table name="example_table">
+            <field name="id" type="INTEGER PRIMARY KEY"/>
+            <field name="name" type="TEXT"/>
+            <field name="timestamp" type="DATETIME"/>
+            <field name="value" type="REAL"/>
+        </table>
+    </system>
+    
+    <system name="radar_management">
+        <table name="radar_data">
+            <field name="id" type="INTEGER PRIMARY KEY"/>
+            <field name="timestamp" type="DATETIME"/>
+            <field name="radar_type" type="TEXT"/>
+            <field name="data" type="BLOB"/>
+        </table>
+        
+        <!-- New table for command acknowledgments -->
+        <table name="command_acknowledgments">
+            <field name="id" type="INTEGER PRIMARY KEY"/>
+            <field name="timestamp" type="REAL"/>
+            <field name="command_type" type="TEXT"/>
+            <field name="radar_type" type="TEXT"/>
+            <field name="status" type="TEXT"/>
+            <field name="request_id" type="TEXT"/>
+        </table>
+        
+        <!-- New table for mode changes -->
+        <table name="mode_changes">
+            <field name="id" type="INTEGER PRIMARY KEY"/>
+            <field name="timestamp" type="REAL"/>
+            <field name="radar_type" type="TEXT"/>
+            <field name="mode" type="TEXT"/>
+            <field name="request_id" type="TEXT"/>
+            <field name="data_word" type="TEXT"/>
+        </table>
+    </system>
+    
+    <system name="AEWC Radar">
+        <table name="aewc_radar_data">
+            <field name="id" type="INTEGER PRIMARY KEY"/>
+            <field name="timestamp" type="DATETIME"/>
+            <field name="target_id" type="TEXT"/>
+            <field name="range" type="REAL"/>
+            <field name="bearing" type="REAL"/>
+        </table>
+    </system>
+    
+    <system name="SAR Radar">
+        <table name="sar_radar_data">
+            <field name="id" type="INTEGER PRIMARY KEY"/>
+            <field name="timestamp" type="DATETIME"/>
+            <field name="image_data" type="BLOB"/>
+            <field name="resolution" type="REAL"/>
+        </table>
+    </system>
+    
+    <system name="Targeting Radar">
+        <table name="targeting_radar_data">
+            <field name="id" type="INTEGER PRIMARY KEY"/>
+            <field name="timestamp" type="DATETIME"/>
+            <field name="target_id" type="TEXT"/>
+            <field name="x_coordinate" type="REAL"/>
+            <field name="y_coordinate" type="REAL"/>
+            <field name="z_coordinate" type="REAL"/>
+        </table>
+    </system>
+    
+    <system name="TFR Radar">
+        <table name="tfr_radar_data">
+            <field name="id" type="INTEGER PRIMARY KEY"/>
+            <field name="timestamp" type="DATETIME"/>
+            <field name="terrain_data" type="BLOB"/>
+            <field name="altitude" type="REAL"/>
+        </table>
+    </system>
+    
+    <system name="Weather Radar">
+        <table name="weather_radar_data">
+            <field name="id" type="INTEGER PRIMARY KEY"/>
+            <field name="timestamp" type="DATETIME"/>
+            <field name="precipitation" type="REAL"/>
+            <field name="wind_speed" type="REAL"/>
+            <field name="wind_direction" type="REAL"/>
+        </table>
+    </system>
+    
+    <system name="gps_system">
+        <table name="navigation_data">
+            <field name="id" type="INTEGER PRIMARY KEY"/>
+            <field name="timestamp" type="DATETIME"/>
+            <field name="latitude" type="REAL"/>
+            <field name="longitude" type="REAL"/>
+            <field name="altitude" type="REAL"/>
+        </table>
+    </system>
+    
+    <system name="environmental_control_system">
+        <table name="ecs_data">
+            <field name="id" type="INTEGER PRIMARY KEY"/>
+            <field name="timestamp" type="DATETIME"/>
+            <field name="temperature" type="REAL"/>
+            <field name="pressure" type="REAL"/>
+            <field name="humidity" type="REAL"/>
+        </table>
+    </system>
+    
+    <system name="mission_management_system">
+        <table name="mission_data">
+            <field name="id" type="INTEGER PRIMARY KEY"/>
+            <field name="mission_id" type="TEXT"/>
+            <field name="start_time" type="DATETIME"/>
+            <field name="end_time" type="DATETIME"/>
+            <field name="status" type="TEXT"/>
+        </table>
+    </system>
+    
+    <system name="power_management_system">
+        <table name="power_data">
+            <field name="id" type="INTEGER PRIMARY KEY"/>
+            <field name="timestamp" type="DATETIME"/>
+            <field name="voltage" type="REAL"/>
+            <field name="current" type="REAL"/>
+            <field name="power" type="REAL"/>
+        </table>
+    </system>
+    
+    <system name="flight_control_computer">
+        <table name="flight_control_data">
+            <field name="id" type="INTEGER PRIMARY KEY"/>
+            <field name="timestamp" type="DATETIME"/>
+            <field name="pitch" type="REAL"/>
+            <field name="roll" type="REAL"/>
+            <field name="yaw" type="REAL"/>
+        </table>
+    </system>
+    
+    <system name="sat_com">
+        <table name="communication_data">
+            <field name="id" type="INTEGER PRIMARY KEY"/>
+            <field name="timestamp" type="DATETIME"/>
+            <field name="message_type" type="TEXT"/>
+            <field name="message_content" type="TEXT"/>
+        </table>
+    </system>
+    
+    <system name="radio">
+        <table name="communication_data">
+            <field name="id" type="INTEGER PRIMARY KEY"/>
+            <field name="timestamp" type="DATETIME"/>
+            <field name="frequency" type="REAL"/>
+            <field name="message" type="TEXT"/>
+        </table>
+    </system>
+    
+    <system name="data_link">
+        <table name="communication_data">
+            <field name="id" type="INTEGER PRIMARY KEY"/>
+            <field name="timestamp" type="DATETIME"/>
+            <field name="link_type" type="TEXT"/>
+            <field name="data" type="BLOB"/>
+        </table>
+    </system>
+</schema>

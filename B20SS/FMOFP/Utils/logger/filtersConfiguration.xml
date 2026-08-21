@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<filters>
+    <!-- Enable detailed logging for command acknowledgement -->
+    <filter>
+        <type>KeywordFilter</type>
+        <active>true</active>
+        <params>
+            <keyword>status word</keyword>
+        </params>
+    </filter>
+    <filter>
+        <type>KeywordFilter</type>
+        <active>true</active>
+        <params>
+            <keyword>command word</keyword>
+        </params>
+    </filter>
+    <!-- Enable all log levels -->
+    <filter>
+        <type>LevelFilter</type>
+        <active>true</active>
+        <params>
+            <level>DEBUG</level>
+        </params>
+    </filter>
+    <filter>
+        <type>LevelFilter</type>
+        <active>true</active>
+        <params>
+            <level>INFO</level>
+        </params>
+    </filter>
+    <filter>
+        <type>LevelFilter</type>
+        <active>true</active>
+        <params>
+            <level>WARNING</level>
+        </params>
+    </filter>
+    <filter>
+        <type>LevelFilter</type>
+        <active>true</active>
+        <params>
+            <level>ERROR</level>
+        </params>
+    </filter>
+</filters>

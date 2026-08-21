@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fmFitness>
+  <components>
+    <component>
+      <name>flightControlFitness</name>
+      <description>Monitors the status and health of flight control systems</description>
+    </component>
+    <component>
+      <name>navigationFitness</name>
+      <description>Monitors the status and health of navigation systems</description>
+    </component>
+    <component>
+      <name>avionicsFitness</name>
+      <description>Monitors the status and health of avionics systems</description>
+    </component>
+  </components>
+  
+  <thresholds>
+    <warning>
+      <cpu>80</cpu>
+      <memory>75</memory>
+    </warning>
+    <critical>
+      <cpu>90</cpu>  
+      <memory>90</memory>
+    </critical>
+  </thresholds>
+  
+  <redundancy>
+    <component>flightControlFitness</component>
+    <backup>aviationBackupComputer</backup>
+  </redundancy>
+    
+</fmFitness>

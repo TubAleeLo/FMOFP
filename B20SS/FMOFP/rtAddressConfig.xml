@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Based off of addressbook.xml -->
+<rt_address_config>
+    <!-- RT addresses for different systems -->
+
+    <rt_addresses>
+        <address id="unnamed_system" address="0" name="Unnamed System"/>
+        <address id="avionics" address="1" name="Avionics"/>
+        <address id="comms" address="2" name="Communications"/>
+        <address id="enginemanagement" address="3" name="Engine Management"/>
+        <address id="enviornmentalcontrolsystem" address="4" name="Environmental Control System"/>
+        <address id="flightcontrolsys" address="5" name="Flight Control System"/>
+        <address id="missionplanning" address="6" name="Mission Planning"/>
+        <address id="nav" address="7" name="Navigation"/>
+        <address id="powermanagement" address="8" name="Power Management"/>
+        <address id="radar" address="9" name="Radar"/>
+        <address id="sensormanagement" address="10" name="Sensor Management"/>
+        <address id="displays" address="11" name="Display System"/>
+        <address id="flightmanagementsystem" address="12" name="Flight Management System"/>
+    </rt_addresses>
+    
+    <!--##################################-->
+    <!--###### System Subaddresses #######-->
+    <!--##################################-->
+    <subaddresses>
+        <!-- Radar subaddresses -->
+        <subaddress id="weather_radar" address="1" name="Weather Radar" />
+        <subaddress id="tfr_radar" address="2" name="Ground Mapping Radar" />
+        <subaddress id="sar_radar" address="3" name="Air Mapping Radar" />
+        <subaddress id="targeting_radar" address="4" name="Targeting Radar" />
+        <subaddress id="aewc_radar" address="5" name="Collision Avoidance Radar" />
+
+        <!-- Flight Management subaddresses-->
+        <subaddress id="flight_control" address="10" name="Flight Control System" />
+        <subaddress id="flight_management" address="15" name="Flight Management System" />
+
+        <!-- Display subaddresses -->
+        <subaddress id="pfd" address="11" name="Primary Flight Display" />
+        <subaddress id="mfd" address="12" name="Multi-Function Display" />
+        <subaddress id="eicas" address="13" name="Engine Indicating and Crew Alerting System" />
+        <subaddress id="radar_display" address="14" name="Radar Display" />
+        <subaddress id="tsd" address="15" name="Tactical Situation Display" />
+        <subaddress id="sms" address="16" name="Stores Management System" />
+
+        <!-- Sensor Management subaddresses -->
+        <subaddress id="sensor_management" address="1" name="Sensor Management" />
+        <subaddress id="sensor_control" address="2" name="Sensor Control" />
+        <subaddress id="sensor_data" address="3" name="Sensor Data" />
+
+        <!-- Mode Code Subaddresses -->
+        <subaddress id="mode_codes" address="31" name="Mode Code Operations" />
+    </subaddresses>
+</rt_address_config>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<airframeManagement>
+  <subsystems>
+    <subsystem>
+      <name>airframeMonitoring</name>
+      <description>Monitors airframe structural health and integrity</description>
+    </subsystem>
+    <subsystem>
+      <name>landingGearSystem</name>
+      <description>Controls landing gear deployment, retraction and steering</description>
+    </subsystem>
+    <subsystem>
+      <name>deiceSystem</name>
+      <description>Provides anti-ice/deice capabilities for airframe</description>
+    </subsystem>
+    <subsystem>
+      <name>crewEnvironment</name>
+      <description>Controls life support and environmental systems for crew</description>
+    </subsystem>
+  </subsystems>
+  
+  <sensors>
+    <sensor>
+      <id>1</id>
+      <type>strain</type>
+      <location>Wing root</location>
+    </sensor>
+    <sensor>
+      <id>2</id>
+      <type>strain</type>  
+      <location>Fuselage</location>
+    </sensor>
+    <sensor>
+      <id>3</id>
+      <type>temperature</type>
+      <location>LeadingEdges</location>
+    </sensor>
+  </sensors>
+</airframeManagement>
